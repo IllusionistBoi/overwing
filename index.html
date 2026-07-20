@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overwing — Flight Tracker for Android</title>
+<meta name="description" content="Live flight tracking and a passport of everywhere you've flown. Free, private, and made by one traveler. Coming soon to Google Play.">
+<meta property="og:title" content="Overwing — Flight Tracker for Android">
+<meta property="og:description" content="Your window seat for every flight. Live tracking, gate alerts, and a travel passport.">
+<meta property="og:image" content="https://illusionistboi.github.io/overwing/assets/mark.png">
+<link rel="icon" type="image/png" href="assets/mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --obsidian:#050505; --gold:#f2ca50; --copper:#b87333;
+    --cream:#f4ede2; --muted:#a89d86; --edge:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--obsidian);color:var(--cream)}
+  body{font-family:Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.6}
+  .hero{
+    min-height:88svh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;padding:48px 24px 40px;position:relative;overflow:hidden;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background:url(assets/horizon.png) center 30%/min(760px,140vw) no-repeat;
+    opacity:.5;pointer-events:none;
+    mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 75%);
+    -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 40%, #000 40%, transparent 75%);
+  }
+  .hero > *{position:relative}
+  .mark{width:132px;height:132px;border-radius:26%;box-shadow:0 24px 60px rgba(0,0,0,.65);margin-bottom:30px}
+  h1{
+    font-family:"Hanken Grotesk",Inter,sans-serif;font-weight:800;
+    font-size:clamp(44px,9vw,72px);letter-spacing:-.02em;margin:0;text-wrap:balance;
+  }
+  h1 b{color:var(--gold);font-weight:800}
+  .tagline{
+    font-family:"Hanken Grotesk",Inter,sans-serif;font-weight:600;
+    font-size:clamp(18px,3.4vw,24px);color:var(--cream);margin:14px 0 10px;
+  }
+  .sub{color:var(--muted);max-width:44ch;margin:0 auto;font-size:16px}
+  .cta{
+    display:inline-block;margin-top:34px;padding:13px 26px;border-radius:999px;
+    border:1px solid rgba(242,202,80,.45);color:var(--gold);
+    font-family:"Hanken Grotesk",Inter,sans-serif;font-weight:600;font-size:15px;
+    letter-spacing:.02em;background:rgba(242,202,80,.07);
+  }
+  section{max-width:720px;margin:0 auto;padding:28px 24px 8px}
+  .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:8px}
+  .f{border:1px solid var(--edge);border-radius:18px;padding:22px 20px;background:#0b0a08}
+  .f h3{
+    font-family:"Hanken Grotesk",Inter,sans-serif;font-weight:600;font-size:17px;margin:0 0 6px;
+  }
+  .f h3::before{content:"";display:block;width:26px;height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--copper));margin-bottom:14px}
+  .f p{margin:0;color:var(--muted);font-size:14.5px}
+  .indie{
+    text-align:center;color:var(--muted);font-size:15px;max-width:52ch;margin:44px auto 0;padding:0 24px;
+  }
+  .indie b{color:var(--cream);font-weight:600}
+  footer{
+    margin-top:56px;border-top:1px solid var(--edge);padding:26px 24px 40px;text-align:center;
+    color:#6d675c;font-size:13.5px;
+  }
+  footer a{color:var(--muted);text-decoration:none;border-bottom:1px solid rgba(168,157,134,.35)}
+  footer a:hover{color:var(--gold);border-color:rgba(242,202,80,.5)}
+  .foot-links{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <img class="mark" src="assets/mark.png" alt="Overwing app icon: a gold wing over a sunrise horizon">
+  <h1>Over<b>wing</b></h1>
+  <p class="tagline">Your window seat for every flight.</p>
+  <p class="sub">Live flight tracking and a passport of everywhere you&#8217;ve flown.
+  Free, private, and made by one traveler.</p>
+  <span class="cta">Coming soon to Google Play</span>
+</div>
+
+<section>
+  <div class="features">
+    <div class="f">
+      <h3>Live Tracking</h3>
+      <p>Gates, delays, and boarding calls, often before the airport announces them. Follow your
+      aircraft from pushback to touchdown.</p>
+    </div>
+    <div class="f">
+      <h3>Travel Passport</h3>
+      <p>Every flight stamps your passport: airports, countries, aircraft, and lifetime distance.
+      Climb from Bronze to Platinum.</p>
+    </div>
+    <div class="f">
+      <h3>Journal &amp; Wrapped</h3>
+      <p>Photos, notes, and the people you flew with, plus a year-in-review worth sharing.</p>
+    </div>
+  </div>
+</section>
+
+<p class="indie"><b>No ads. No data selling. No investors.</b> Overwing is built by one person in
+Dublin who wanted a calm, beautiful place to keep his own journeys, and couldn&#8217;t find one.</p>
+
+<footer>
+  <div class="foot-links">
+    <a href="https://aerolog-9696e.web.app">Privacy Policy</a>
+    <a href="mailto:illusionistboi@proton.me">Contact</a>
+  </div>
+  © 2026 Overwing · Dublin
+</footer>
+
+</body>
+</html>
