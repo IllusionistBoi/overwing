@@ -1,418 +1,809 @@
 <!DOCTYPE html>
-<html class="dark" lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Overwing — Flight Tracker for Android</title>
-<meta name="description" content="Live flight tracking and a passport of everywhere you've flown. Free, private, made by one traveler. Coming soon to Google Play."/>
+<meta name="description" content="Live flight tracking, gate alerts, and a passport of everywhere you've flown. Free, private, and made by one traveler. Coming soon to Google Play."/>
 <meta property="og:title" content="Overwing — Flight Tracker for Android"/>
 <meta property="og:description" content="Your window seat for every flight. Live tracking, gate alerts, and a travel passport."/>
 <meta property="og:image" content="https://illusionistboi.github.io/overwing/assets/mark.png"/>
+<meta property="og:type" content="website"/>
 <link rel="icon" type="image/png" href="assets/mark.png"/>
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&amp;family=Inter:wght@400;500&amp;family=Geist:wght@400;500&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "surface-variant": "#333535",
-                        "secondary": "#eac249",
-                        "on-surface": "#e2e2e2",
-                        "outline": "#8e9192",
-                        "on-surface-variant": "#c4c7c7",
-                        "primary": "#c9c6c5",
-                        "primary-container": "#050505",
-                        "on-primary-container": "#797777",
-                        "surface": "#121414",
-                        "on-background": "#e2e2e2",
-                        "background": "#121414",
-                        "surface-container-lowest": "#0c0f0f",
-                        "surface-container-low": "#1a1c1c",
-                        "surface-container-high": "#282a2b",
-                        "surface-container": "#1e2020"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "xs": "4px", "sm": "8px", "md": "16px", "lg": "24px",
-                        "xl": "40px", "xxl": "64px",
-                        "unit": "4px", "gutter": "20px", "container-max": "1280px"
-                    },
-                    "fontFamily": {
-                        "headline-md": ["Hanken Grotesk"],
-                        "body-lg": ["Inter"],
-                        "label-sm": ["Geist"],
-                        "mono-data": ["Geist"],
-                        "display-lg-mobile": ["Hanken Grotesk"],
-                        "display-lg": ["Hanken Grotesk"],
-                        "body-md": ["Inter"]
-                    },
-                    "fontSize": {
-                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
-                        "mono-data": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
-                    }
-                },
-            },
-        }
-    </script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
-        html { scroll-behavior: smooth; }
-        body {
-            background-color: #050505;
-            color: #e2e2e2;
-            -webkit-font-smoothing: antialiased;
-        }
-        .glass-card {
-            position: relative;
-            overflow: hidden;
-            background: rgba(18, 20, 20, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        /* Gold cursor glow — completes the mousemove vars the cards track */
-        .glass-card::before {
-            content: "";
-            position: absolute; inset: 0;
-            background: radial-gradient(360px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-                        rgba(242, 202, 80, 0.10), transparent 65%);
-            opacity: 0; transition: opacity .35s ease;
-            pointer-events: none;
-        }
-        .glass-card:hover::before { opacity: 1; }
-        .hero-glow {
-            background: radial-gradient(circle at center, rgba(234, 194, 73, 0.08) 0%, transparent 70%);
-        }
-        .gold-border { border: 1px solid rgba(242, 202, 80, 0.2); }
-        .gold-gradient-text {
-            background: linear-gradient(135deg, #eac249 0%, #f2ca50 50%, #af8d11 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        /* ——— Story sections ——— */
-        .story { display: grid; gap: 40px; align-items: center; }
-        @media (min-width: 768px) {
-            .story { grid-template-columns: 1fr 1fr; gap: 64px; }
-            .story.flip .story-copy { order: 2; }
-            .story.flip .story-visual { order: 1; }
-        }
-        .story h2 {
-            font-family: "Hanken Grotesk", Inter, sans-serif; font-weight: 700;
-            font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.02em; line-height: 1.15;
-            margin: 0 0 18px; color: #f4ede2; text-wrap: balance;
-        }
-        .story p { color: #c4c7c7; font-size: 16.5px; line-height: 1.7; margin: 0; }
-        .story-visual { display: flex; flex-direction: column; align-items: center; gap: 22px; }
-        .mock-card {
-            width: min(340px, 100%); border-radius: 18px; padding: 22px 22px 18px;
-            background: linear-gradient(160deg, #14120c, #0b0a07);
-            border: 1px solid rgba(242, 202, 80, 0.18);
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-        }
-        .mock-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-        .mono { font-family: Geist, monospace; letter-spacing: 0.04em; }
-        .gold { color: #f2ca50; }
-        .chip-live {
-            font-family: Geist, monospace; font-size: 10.5px; letter-spacing: 0.12em;
-            color: #4ade80; background: rgba(74, 222, 128, 0.14); border-radius: 6px; padding: 4px 9px;
-        }
-        .mock-route { display: flex; align-items: flex-end; gap: 10px; }
-        .mock-airport { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .mock-airport b { font-family: Geist, monospace; font-size: 17px; color: #f4ede2; }
-        .mock-airport i { font-style: normal; font-family: Geist, monospace; font-size: 11px; color: #8f8877; }
-        .mock-arc { flex: 1; height: 64px; }
-        .mock-tags { display: flex; gap: 8px; margin-top: 16px; }
-        .mock-tag {
-            font-family: Geist, monospace; font-size: 10.5px; letter-spacing: 0.08em; color: #f2ca50;
-            background: rgba(242, 202, 80, 0.10); border: 1px solid rgba(242, 202, 80, 0.22);
-            border-radius: 999px; padding: 4px 10px;
-        }
-        .stamps { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; }
-        .stamp {
-            width: 74px; height: 74px; border-radius: 50%;
-            border: 2px dashed rgba(242, 202, 80, 0.55);
-            display: flex; align-items: center; justify-content: center;
-            font-family: Geist, monospace; font-size: 14px; letter-spacing: 0.1em; color: #e8ddc4;
-            transform: rotate(var(--r, 0deg));
-        }
-        .tiers { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .tier {
-            font-family: Geist, monospace; font-size: 11px; letter-spacing: 0.1em;
-            color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
-            border-radius: 999px; padding: 5px 12px; opacity: 0.75;
-        }
-        .tier.cur { opacity: 1; background: color-mix(in srgb, var(--c) 12%, transparent); }
-        .statline { font-family: Geist, monospace; font-size: 13px; color: #a89d86; letter-spacing: 0.06em; }
-        .polas { display: flex; gap: 18px; justify-content: center; }
-        .pola {
-            background: #efe8da; border-radius: 6px; padding: 8px 8px 10px;
-            transform: rotate(var(--tilt, 0deg));
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .pola .ph { width: 118px; height: 118px; border-radius: 3px; }
-        .ph1 { background: linear-gradient(160deg, #f2a04b 0%, #b8562e 45%, #26140c 100%); }
-        .ph2 { background: linear-gradient(200deg, #6b86b8 0%, #2a3c5e 55%, #10131c 100%); }
-        .pola span { font-size: 11.5px; color: #4c4436; text-align: center; }
-        .wrapped-chip {
-            font-family: Geist, monospace; font-size: 11px; letter-spacing: 0.16em; color: #050505;
-            background: linear-gradient(135deg, #f2ca50, #d4af37); border-radius: 999px; padding: 6px 14px;
-        }
-        .letter-panel {
-            max-width: 640px; margin: 0 auto; padding: 44px clamp(24px, 6vw, 56px);
-            background: rgba(18, 20, 20, 0.55); border: 1px solid rgba(242, 202, 80, 0.16);
-            border-radius: 20px; position: relative;
-        }
-        .letter-eyebrow {
-            font-family: Geist, monospace; font-size: 11px; letter-spacing: 0.22em;
-            color: #f2ca50; display: block; text-align: center; margin-bottom: 22px;
-        }
-        .letter-panel p { color: #d6cdbd; font-size: 16.5px; line-height: 1.8; margin: 0 0 18px; }
-        .letter-sign { color: #a89d86; font-size: 14.5px; text-align: right; margin-top: 26px; }
-        .letter-sign b { color: #f2ca50; font-weight: 600; }
+  :root{
+    --obsidian:#050505;
+    --surface:#0e0d0a;
+    --surface-2:#14120c;
+    --edge:rgba(255,255,255,.07);
+    --gold:#f2ca50;
+    --gold-dim:#d4af37;
+    --copper:#b87333;
+    --cream:#f4ede2;
+    --ink:#e2ddd2;
+    --muted:#a89d86;
+    --green:#4ade80;
+    --red:#ef6a5c;
+    --mono:"Geist Mono",ui-monospace,monospace;
+    --display:"Hanken Grotesk",system-ui,sans-serif;
+    --body:"Inter",system-ui,sans-serif;
+    --max:1200px;
+    --z-nav:100;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--obsidian);color:var(--ink);
+    font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.65;
+    overflow-x:hidden;
+  }
+  a{color:inherit}
+  h1,h2,h3{font-family:var(--display);letter-spacing:-.02em;text-wrap:balance;margin:0}
+  .wrap{max-width:var(--max);margin:0 auto;padding-inline:clamp(20px,5vw,40px)}
+  .mono{font-family:var(--mono);letter-spacing:.02em}
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--gold);display:inline-block;
+  }
 
-        /* ——— Motion layer ——— */
-        @keyframes riseIn {
-            from { opacity: 0; transform: translateY(26px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes heroSettle {
-            from { transform: scale(1.06); }
-            to   { transform: scale(1); }
-        }
-        .hero-img { animation: heroSettle 2.8s cubic-bezier(.22,1,.36,1) both; }
-        .stagger { opacity: 0; animation: riseIn .9s cubic-bezier(.22,1,.36,1) forwards; }
-        .d1 { animation-delay: .15s; } .d2 { animation-delay: .35s; }
-        .d3 { animation-delay: .55s; } .d4 { animation-delay: .8s; }
-        .reveal { opacity: 0; transform: translateY(28px);
-                  transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1); }
-        .reveal.in { opacity: 1; transform: none; }
-        .reveal:nth-child(2) { transition-delay: .12s; }
-        .reveal:nth-child(3) { transition-delay: .24s; }
-        @media (prefers-reduced-motion: reduce) {
-            html { scroll-behavior: auto; }
-            .hero-img, .stagger { animation: none; opacity: 1; transform: none; }
-            .reveal { opacity: 1; transform: none; transition: none; }
-            .animate-bounce { animation: none; }
-        }
-    </style>
+  /* ——— Nav ——— */
+  nav.top{
+    position:fixed;top:0;left:0;width:100%;z-index:var(--z-nav);
+    background:rgba(5,5,5,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--edge);
+  }
+  nav.top .inner{display:flex;align-items:center;justify-content:space-between;height:64px}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-family:var(--display);
+    font-weight:800;font-size:22px;color:var(--cream)}
+  .brand img{width:32px;height:32px;border-radius:9px}
+  .brand b{color:var(--gold);font-weight:800}
+  .nav-links{display:flex;gap:clamp(16px,3vw,32px);align-items:center}
+  .nav-links a{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);text-decoration:none;transition:color .2s}
+  .nav-links a:hover{color:var(--gold)}
+  .nav-cta{border:1px solid rgba(242,202,80,.4);border-radius:999px;padding:8px 16px !important;color:var(--gold) !important}
+
+  /* ——— Hero ——— */
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;
+    align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;
+    padding-top:clamp(96px,15vh,190px);padding-inline:20px}
+  .hero-photo{position:absolute;inset:0;z-index:0}
+  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.72;
+    animation:heroSettle 3s cubic-bezier(.22,1,.36,1) both}
+  /* dark at top (text band) + bottom, clear through the middle so the sun shows */
+  .hero-scrim{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,#050505 4%,rgba(5,5,5,.55) 26%,rgba(5,5,5,.12) 46%,rgba(5,5,5,.2) 66%,#050505 98%)}
+  /* animated sun, blended onto the photo's horizon */
+  .sun{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);z-index:1;
+    width:min(56vw,420px);aspect-ratio:1;pointer-events:none;mix-blend-mode:screen}
+  .sun-rays{position:absolute;inset:-40%;border-radius:50%;
+    background:conic-gradient(from 0deg,
+      rgba(242,202,80,0) 0deg, rgba(242,202,80,.16) 8deg, rgba(242,202,80,0) 16deg,
+      rgba(242,202,80,0) 30deg, rgba(242,202,80,.12) 38deg, rgba(242,202,80,0) 46deg,
+      rgba(242,202,80,0) 60deg, rgba(242,202,80,.16) 68deg, rgba(242,202,80,0) 76deg,
+      rgba(242,202,80,0) 90deg, rgba(242,202,80,.1) 98deg, rgba(242,202,80,0) 106deg,
+      rgba(242,202,80,0) 120deg, rgba(242,202,80,.16) 128deg, rgba(242,202,80,0) 136deg,
+      rgba(242,202,80,0) 150deg, rgba(242,202,80,.12) 158deg, rgba(242,202,80,0) 166deg,
+      rgba(242,202,80,0) 180deg, rgba(242,202,80,.16) 188deg, rgba(242,202,80,0) 196deg,
+      rgba(242,202,80,0) 210deg, rgba(242,202,80,.12) 218deg, rgba(242,202,80,0) 226deg,
+      rgba(242,202,80,0) 240deg, rgba(242,202,80,.16) 248deg, rgba(242,202,80,0) 256deg,
+      rgba(242,202,80,0) 270deg, rgba(242,202,80,.1) 278deg, rgba(242,202,80,0) 286deg,
+      rgba(242,202,80,0) 300deg, rgba(242,202,80,.16) 308deg, rgba(242,202,80,0) 316deg,
+      rgba(242,202,80,0) 330deg, rgba(242,202,80,.12) 338deg, rgba(242,202,80,0) 346deg,
+      rgba(242,202,80,0) 360deg);
+    -webkit-mask:radial-gradient(circle,#000 30%,transparent 62%);
+    mask:radial-gradient(circle,#000 30%,transparent 62%);
+    animation:spin 100s linear infinite}
+  .sun-halo{position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,214,120,.5) 0%,rgba(242,202,80,.22) 26%,transparent 60%);
+    animation:sunBreathe 5.5s ease-in-out infinite}
+  .hero-content{position:relative;z-index:2;max-width:920px}
+  .hero h1{font-size:clamp(56px,13vw,120px);font-weight:800;line-height:.98;color:var(--cream);
+    text-shadow:0 4px 40px rgba(0,0,0,.6)}
+  .hero h1 b{color:var(--gold);font-weight:800}
+  .hero .tagline{font-family:var(--display);font-weight:600;font-size:clamp(19px,3.4vw,26px);
+    color:var(--cream);margin-top:18px;text-shadow:0 2px 20px rgba(0,0,0,.85)}
+  .hero .sub{color:#d7d0c2;font-size:clamp(15px,2vw,18px);max-width:34ch;margin:14px auto 0;
+    text-shadow:0 2px 18px rgba(0,0,0,.9)}
+  .hero-actions{margin-top:36px;display:flex;flex-direction:column;align-items:center;gap:14px}
+  .btn-play{display:inline-flex;align-items:center;gap:10px;background:var(--gold);color:#241c00;
+    font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;
+    padding:15px 30px;border-radius:999px;text-decoration:none;
+    box-shadow:0 0 34px rgba(242,202,80,.34);transition:transform .2s ease,box-shadow .2s ease}
+  .btn-play:hover{transform:translateY(-2px);box-shadow:0 6px 44px rgba(242,202,80,.5)}
+  .btn-play svg{width:16px;height:16px}
+  .hero-note{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .scroll-cue{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:2;
+    display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--gold);text-decoration:none}
+  .scroll-cue span{font-family:var(--mono);font-size:10px;letter-spacing:.24em}
+  .scroll-cue .chev{width:18px;height:18px;animation:bob 1.8s ease-in-out infinite}
+
+  /* ——— Split-flap departures board ——— */
+  .board-sec{padding:clamp(48px,8vw,88px) 0}
+  .board{background:#0a0a0b;border:1px solid var(--edge);border-radius:16px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.55)}
+  .board-head{display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px;border-bottom:1px solid var(--edge);background:#0c0c0e}
+  .board-head .t{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .board-head .live{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .board-head .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);
+    animation:pulse 2s ease-in-out infinite}
+  .board-rows{padding:10px 12px}
+  .frow{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;
+    padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.045)}
+  .frow:last-child{border-bottom:0}
+  .frow .ftime{font-family:var(--mono);font-size:15px;color:var(--cream);letter-spacing:.04em}
+  .fdest{display:flex;gap:3px}
+  .flap{width:19px;height:27px;border-radius:3px;background:#161616;color:var(--cream);
+    font-family:var(--mono);font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;
+    position:relative;box-shadow:inset 0 -1px 0 rgba(0,0,0,.6);
+    border-top:1px solid rgba(255,255,255,.05)}
+  .flap.flip{animation:flap .13s ease-in}
+  .fstatus{font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:5px 11px;border-radius:5px;
+    white-space:nowrap}
+  .st-green{color:var(--green);background:rgba(74,222,128,.12)}
+  .st-gold{color:var(--gold);background:rgba(242,202,80,.12)}
+  .st-red{color:var(--red);background:rgba(239,106,92,.12)}
+  @media(max-width:560px){
+    .frow{grid-template-columns:52px 1fr auto;gap:8px}
+    .flap{width:15px;height:22px;font-size:12px}
+    .fstatus{font-size:9.5px;padding:4px 7px}
+  }
+
+  /* ——— Section scaffold ——— */
+  section{position:relative}
+  .sec-head{text-align:center;max-width:640px;margin:0 auto clamp(36px,6vw,60px)}
+  .sec-head h2{font-size:clamp(30px,5vw,46px);font-weight:700;color:var(--cream);margin-top:14px;line-height:1.1}
+  .sec-head p{color:var(--muted);font-size:17px;margin:16px 0 0}
+
+  /* ——— Story blocks ——— */
+  .story{display:grid;gap:40px;align-items:center;padding:clamp(40px,7vw,80px) 0}
+  @media(min-width:820px){
+    .story{grid-template-columns:1fr 1fr;gap:72px}
+    .story.flip .s-copy{order:2}.story.flip .s-visual{order:1}
+  }
+  .s-copy h2{font-size:clamp(28px,4.4vw,42px);font-weight:700;color:var(--cream);line-height:1.12;margin-bottom:18px}
+  .s-copy p{color:#c9c1b0;font-size:17px;line-height:1.75;margin:0}
+  .s-visual{display:flex;flex-direction:column;align-items:center;gap:22px}
+
+  .mockcard{width:min(360px,100%);border-radius:20px;padding:22px;background:linear-gradient(160deg,#14120c,#0b0a07);
+    border:1px solid rgba(242,202,80,.18);box-shadow:0 26px 64px rgba(0,0,0,.55)}
+  .mc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .mc-fn{font-family:var(--mono);color:var(--gold);font-size:15px;letter-spacing:.04em}
+  .chip-live{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--green);
+    background:rgba(74,222,128,.14);border-radius:6px;padding:4px 9px}
+  .mc-route{display:flex;align-items:flex-end;gap:10px}
+  .mc-ap{display:flex;flex-direction:column;align-items:center;gap:2px}
+  .mc-ap b{font-family:var(--mono);font-size:18px;color:var(--cream)}
+  .mc-ap i{font-style:normal;font-family:var(--mono);font-size:11px;color:#8f8877}
+  .mc-arc{flex:1;height:66px}
+  .mc-tags{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+  .tag-gold{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--gold);
+    background:rgba(242,202,80,.1);border:1px solid rgba(242,202,80,.22);border-radius:999px;padding:4px 10px}
+
+  .stamps{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .stamp{width:76px;height:76px;border-radius:50%;border:2px dashed rgba(242,202,80,.5);
+    display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;
+    letter-spacing:.1em;color:#e8ddc4;transform:rotate(var(--r,0deg))}
+  .tiers{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .tier{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--c);
+    border:1px solid color-mix(in srgb,var(--c) 45%,transparent);border-radius:999px;padding:5px 12px;opacity:.7}
+  .tier.cur{opacity:1;background:color-mix(in srgb,var(--c) 12%,transparent)}
+  .statline{font-family:var(--mono);font-size:13px;color:var(--muted);letter-spacing:.06em}
+
+  .polas{display:flex;gap:18px;justify-content:center}
+  .pola{background:#efe8da;border-radius:6px;padding:8px 8px 10px;transform:rotate(var(--tilt,0deg));
+    box-shadow:0 16px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:8px}
+  .pola .ph{width:120px;height:120px;border-radius:3px}
+  .ph1{background:linear-gradient(160deg,#f2a04b,#b8562e 45%,#26140c)}
+  .ph2{background:linear-gradient(200deg,#6b86b8,#2a3c5e 55%,#10131c)}
+  .pola span{font-size:11.5px;color:#4c4436;text-align:center;font-family:var(--body)}
+  .jlabels{display:flex;gap:8px}
+  .jlabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--gold);
+    background:rgba(242,202,80,.12);border:1px solid rgba(242,202,80,.24);border-radius:999px;padding:5px 12px}
+  .jlabel.on{background:rgba(242,202,80,.2)}
+
+  /* ——— Everything grid ——— */
+  .allfeat{padding:clamp(48px,8vw,90px) 0}
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .fcell{background:var(--surface);border:1px solid var(--edge);border-radius:16px;padding:24px;
+    transition:border-color .3s,transform .3s}
+  .fcell:hover{border-color:rgba(242,202,80,.32);transform:translateY(-3px)}
+  .fcell .ic{width:38px;height:38px;border-radius:10px;background:rgba(242,202,80,.1);
+    display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+  .fcell .ic svg{width:20px;height:20px;stroke:var(--gold);fill:none;stroke-width:1.7}
+  .fcell h3{font-size:17px;font-weight:600;color:var(--cream);margin-bottom:7px}
+  .fcell p{color:var(--muted);font-size:14px;margin:0;line-height:1.6}
+
+  /* ——— Phone showcase ——— */
+  .phones{padding:clamp(48px,8vw,90px) 0;overflow:hidden}
+  .phone-row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+  .phone{width:240px;flex:0 0 auto;border-radius:34px;padding:9px;background:linear-gradient(160deg,#26241d,#0c0b08);
+    border:1px solid rgba(242,202,80,.15);box-shadow:0 30px 70px rgba(0,0,0,.6)}
+  .phone-screen{border-radius:26px;overflow:hidden;background:var(--obsidian);height:480px;position:relative;
+    display:flex;flex-direction:column}
+  .ps-status{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 4px;
+    font-family:var(--mono);font-size:10px;color:var(--muted)}
+  .ps-body{flex:1;padding:8px 14px 14px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+  .ps-title{font-family:var(--display);font-weight:700;font-size:19px;color:var(--cream);margin:6px 2px 2px}
+  .mini-card{background:var(--surface-2);border:1px solid var(--edge);border-radius:14px;padding:13px}
+  .mini-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .mini-fn{font-family:var(--mono);font-size:12px;color:var(--gold)}
+  .mini-route{display:flex;align-items:flex-end;gap:8px}
+  .mini-ap{display:flex;flex-direction:column;align-items:center}
+  .mini-ap b{font-family:var(--mono);font-size:13px;color:var(--cream)}
+  .mini-ap i{font-style:normal;font-family:var(--mono);font-size:9px;color:#8f8877}
+  .mini-arc{flex:1;height:38px}
+  .caption{text-align:center;color:var(--muted);font-family:var(--mono);font-size:11px;
+    letter-spacing:.1em;text-transform:uppercase;margin-top:16px}
+  .hero-stat{font-family:var(--mono);font-size:34px;color:var(--gold);text-align:center;margin:8px 0 2px}
+  .hero-stat-l{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--muted)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .stat-box{background:var(--surface-2);border:1px solid var(--edge);border-radius:12px;padding:12px;text-align:center}
+  .stat-box b{display:block;font-family:var(--mono);font-size:20px;color:var(--cream)}
+  .stat-box span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+  /* ——— Pricing ——— */
+  .pricing{padding:clamp(48px,8vw,90px) 0}
+  .plans{display:grid;grid-template-columns:1fr;gap:20px;max-width:820px;margin:0 auto}
+  @media(min-width:720px){.plans{grid-template-columns:1fr 1fr}}
+  .plan{background:var(--surface);border:1px solid var(--edge);border-radius:20px;padding:30px}
+  .plan.pro{border-color:rgba(242,202,80,.4);background:linear-gradient(165deg,#14120b,#0b0a07);
+    box-shadow:0 20px 60px rgba(0,0,0,.4)}
+  .plan .pname{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .plan.pro .pname{color:var(--gold)}
+  .plan .price{font-family:var(--display);font-weight:800;font-size:38px;color:var(--cream);margin:8px 0 2px}
+  .plan .price small{font-size:15px;font-weight:500;color:var(--muted)}
+  .plan ul{list-style:none;padding:0;margin:20px 0 0;display:flex;flex-direction:column;gap:11px}
+  .plan li{display:flex;gap:10px;align-items:flex-start;color:var(--ink);font-size:14.5px}
+  .plan li svg{width:16px;height:16px;flex:0 0 auto;margin-top:3px;stroke:var(--gold);fill:none;stroke-width:2}
+  .plan .pnote{margin-top:20px;font-size:12.5px;color:var(--muted);line-height:1.55}
+
+  /* ——— FAQ ——— */
+  .faq{padding:clamp(48px,8vw,90px) 0}
+  .faq-list{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  details{background:var(--surface);border:1px solid var(--edge);border-radius:14px;overflow:hidden;
+    transition:border-color .25s}
+  details[open]{border-color:rgba(242,202,80,.28)}
+  summary{list-style:none;cursor:pointer;padding:18px 22px;display:flex;justify-content:space-between;
+    align-items:center;gap:16px;font-family:var(--display);font-weight:600;font-size:16.5px;color:var(--cream)}
+  summary::-webkit-details-marker{display:none}
+  summary .plus{width:20px;height:20px;flex:0 0 auto;position:relative;transition:transform .25s}
+  details[open] summary .plus{transform:rotate(45deg)}
+  summary .plus::before,summary .plus::after{content:"";position:absolute;background:var(--gold);border-radius:2px}
+  summary .plus::before{left:9px;top:2px;width:2px;height:16px}
+  summary .plus::after{top:9px;left:2px;height:2px;width:16px}
+  details .ans{padding:0 22px 20px;color:var(--muted);font-size:15px;line-height:1.7}
+  details .ans a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(242,202,80,.4)}
+
+  /* ——— Letter ——— */
+  .letter-sec{padding:clamp(48px,8vw,90px) 0}
+  .letter{max-width:640px;margin:0 auto;padding:44px clamp(24px,6vw,56px);
+    background:rgba(18,20,20,.5);border:1px solid rgba(242,202,80,.16);border-radius:20px}
+  .letter .eyebrow{display:block;text-align:center;margin-bottom:22px}
+  .letter p{color:#d6cdbd;font-size:16.5px;line-height:1.85;margin:0 0 18px}
+  .letter .sign{color:var(--muted);font-size:14.5px;text-align:right;margin-top:24px}
+  .letter .sign b{color:var(--gold);font-weight:600}
+
+  /* ——— Manifesto ——— */
+  .manifesto{background:var(--surface-2);border-block:1px solid rgba(242,202,80,.1);
+    padding:clamp(40px,6vw,64px) 0}
+  .manifesto .row{display:flex;flex-wrap:wrap;justify-content:center;gap:16px 32px;
+    font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);opacity:.85}
+  .manifesto .sep{opacity:.4}
+  @media(max-width:600px){.manifesto .sep{display:none}}
+
+  /* ——— Footer ——— */
+  footer{border-top:1px solid var(--edge);background:#0a0a0b;padding:44px 0 40px}
+  .foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:24px;align-items:flex-start}
+  .foot .fbrand{font-family:var(--display);font-weight:800;font-size:22px;color:var(--cream)}
+  .foot .fbrand b{color:var(--gold)}
+  .foot .fcopy{color:var(--muted);font-size:13px;margin-top:6px;font-family:var(--mono);letter-spacing:.04em}
+  .foot-links{display:flex;gap:26px;flex-wrap:wrap}
+  .foot-links a{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);text-decoration:none;transition:color .2s}
+  .foot-links a:hover{color:var(--gold)}
+
+  /* ——— Motion ——— */
+  @keyframes heroSettle{from{transform:scale(1.06)}to{transform:scale(1)}}
+  @keyframes sunBreathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.08);opacity:.95}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  @keyframes flap{0%{transform:rotateX(0);filter:brightness(1)}50%{transform:rotateX(-90deg);filter:brightness(.5)}100%{transform:rotateX(0);filter:brightness(1)}}
+  .reveal{opacity:0;transform:translateY(28px);
+    transition:opacity .8s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:none}
+  .stagger{opacity:0;animation:riseIn .9s cubic-bezier(.22,1,.36,1) forwards}
+  @keyframes riseIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .d1{animation-delay:.1s}.d2{animation-delay:.28s}.d3{animation-delay:.46s}.d4{animation-delay:.66s}
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .hero-photo img,.stagger,.reveal{animation:none;opacity:1;transform:none;transition:none}
+    .sun-halo,.sun-rays,.chev,.board-head .dot{animation:none}
+    .flap.flip{animation:none}
+  }
+</style>
 </head>
-<body class="font-body-md overflow-x-hidden">
-<header class="bg-surface-container-lowest/85 backdrop-blur border-b border-on-surface/10 fixed top-0 z-50 w-full">
-<div class="flex justify-between items-center h-[64px] px-lg md:px-xxl max-w-container-max mx-auto">
-<a class="flex items-center gap-md" href="#">
-<img alt="" class="w-8 h-8 rounded-lg" src="assets/mark.png"/>
-<span class="font-display-lg text-[24px] tracking-tight text-on-background">
-                    Over<span class="text-secondary">wing</span>
-</span>
-</a>
-<nav class="flex items-center gap-lg md:gap-xl">
-<a class="text-on-surface-variant hover:text-secondary font-label-sm text-label-sm uppercase transition-colors duration-200" href="#features">Features</a>
-<a class="text-on-surface-variant hover:text-secondary font-label-sm text-label-sm uppercase transition-colors duration-200" href="https://aerolog-9696e.web.app">Privacy</a>
+<body>
+
+<!-- ══════ NAV ══════ -->
+<nav class="top">
+  <div class="wrap inner">
+    <a class="brand" href="#top"><img src="assets/mark.png" alt=""/>Over<b>wing</b></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="#top">Get it</a>
+    </div>
+  </div>
 </nav>
-</div>
+
+<!-- ══════ HERO ══════ -->
+<header class="hero" id="top">
+  <div class="hero-photo"><img src="assets/hero.png" alt="A golden airplane wing over a sunrise horizon, seen from the window seat"/></div>
+  <div class="hero-scrim"></div>
+  <div class="sun" aria-hidden="true">
+    <div class="sun-rays"></div>
+    <div class="sun-halo"></div>
+  </div>
+  <div class="hero-content">
+    <h1 class="stagger d1">Over<b>wing</b></h1>
+    <p class="tagline stagger d2">Your window seat for every flight.</p>
+    <p class="sub stagger d3">Live flight tracking, gate alerts, and a passport of everywhere
+      you&#8217;ve flown. Free, private, made by one traveler.</p>
+    <div class="hero-actions stagger d4">
+      <a class="btn-play" href="#top">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3.5v17a1 1 0 0 0 1.5.87l14.5-8.5a1 1 0 0 0 0-1.74L4.5 2.63A1 1 0 0 0 3 3.5z"/></svg>
+        Coming soon to Google Play
+      </a>
+      <span class="hero-note">Closed beta launching first · Android</span>
+    </div>
+  </div>
+  <a class="scroll-cue" href="#board" aria-label="Scroll down">
+    <span>SCROLL</span>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </a>
 </header>
-<main class="relative pt-[64px]">
-<!-- Hero -->
-<section class="relative min-h-[88svh] flex flex-col items-center justify-center overflow-hidden px-lg">
-<div class="absolute inset-0 z-0">
-<div class="w-full h-full hero-glow flex items-center justify-center">
-<img alt="A golden airplane wing sweeping over a glowing sunrise on a razor-thin horizon" class="hero-img w-full h-full object-cover opacity-80" src="assets/hero.png"/>
-<div class="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#050505]"></div>
-</div>
-</div>
-<div class="relative z-10 text-center max-w-4xl px-md">
-<h1 class="stagger d1 font-display-lg text-[56px] md:text-[96px] leading-tight tracking-tighter mb-md">
-                    Over<span class="gold-gradient-text">wing</span>
-</h1>
-<p class="stagger d2 font-headline-md text-headline-md text-on-surface mb-lg">
-                    Your window seat for every flight.
-                </p>
-<p class="stagger d3 font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto mb-xxl">
-                    Live flight tracking and a passport of everywhere you&#8217;ve flown. Free, private, made by one traveler.
-                </p>
-<span class="stagger d4 inline-block bg-secondary text-primary-container font-label-sm text-label-sm uppercase px-xxl py-md rounded-full font-bold shadow-[0_0_20px_rgba(234,194,73,0.3)]">
-                    Coming soon to Google Play
-                </span>
-</div>
-<a href="#features" class="absolute bottom-lg left-1/2 -translate-x-1/2 animate-bounce flex flex-col items-center gap-xs" aria-label="Scroll to features">
-<span class="text-secondary font-label-sm text-label-sm uppercase tracking-widest">Scroll</span>
-<span class="material-symbols-outlined text-secondary">expand_more</span>
-</a>
-</section>
-<!-- Features -->
-<section id="features" class="py-xxl px-lg max-w-container-max mx-auto relative z-10">
-<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
-<div class="reveal glass-card gold-border p-xl rounded-xl flex flex-col gap-md transition-colors duration-300">
-<div class="flex items-center justify-between">
-<span class="material-symbols-outlined text-secondary text-[32px]">near_me</span>
-<span class="text-secondary/30 font-mono-data text-mono-data">01</span>
-</div>
-<h3 class="font-headline-md text-headline-md text-on-surface">Live Tracking</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">
-                        Real-time position, gate changes, and delay alerts, often before the airport announces them. Follow your aircraft from pushback to touchdown.
-                    </p>
-</div>
-<div class="reveal glass-card gold-border p-xl rounded-xl flex flex-col gap-md transition-colors duration-300">
-<div class="flex items-center justify-between">
-<span class="material-symbols-outlined text-secondary text-[32px]">public</span>
-<span class="text-secondary/30 font-mono-data text-mono-data">02</span>
-</div>
-<h3 class="font-headline-md text-headline-md text-on-surface">Travel Passport</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">
-                        Every flight stamps your passport: airports, countries, aircraft, and lifetime distance. Watch your tier climb from Bronze to Platinum.
-                    </p>
-</div>
-<div class="reveal glass-card gold-border p-xl rounded-xl flex flex-col gap-md transition-colors duration-300">
-<div class="flex items-center justify-between">
-<span class="material-symbols-outlined text-secondary text-[32px]">auto_awesome</span>
-<span class="text-secondary/30 font-mono-data text-mono-data">03</span>
-</div>
-<h3 class="font-headline-md text-headline-md text-on-surface">Journal &amp; Wrapped</h3>
-<p class="font-body-md text-body-md text-on-surface-variant">
-                        Photos, notes, and the people you flew with, plus a year-in-review recap worth sharing.
-                    </p>
-</div>
-</div>
-</section>
-<!-- Story: day of the flight -->
-<section class="story reveal max-w-container-max mx-auto px-lg py-xl md:py-xxl">
-<div class="story-copy">
-<h2>Know before the airport does.</h2>
-<p>The hour before a flight is the anxious one. Overwing watches your flight so you don&#8217;t
-have to: gate changes and delay alerts land on your phone the moment they&#8217;re filed, often
-before the departure board blinks. And once you&#8217;re in the air, the people picking you up
-follow the same live map you do, from pushback to touchdown.</p>
-</div>
-<div class="story-visual">
-<div class="mock-card">
-<div class="mock-top"><span class="mono gold">EI 105</span><span class="chip-live">EN ROUTE</span></div>
-<div class="mock-route">
-<div class="mock-airport"><b>DUB</b><i>08:45</i></div>
-<svg class="mock-arc" viewBox="0 0 220 64" aria-hidden="true">
-<path d="M8,56 Q110,4 212,56" fill="none" stroke="rgba(242,202,80,.25)" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round"/>
-<path d="M8,56 Q110,4 212,56" fill="none" stroke="#f2ca50" stroke-width="2.5" pathLength="100" stroke-dasharray="62 100" stroke-linecap="round"/>
-<circle cx="8" cy="56" r="3.5" fill="#f2ca50"/>
-<circle cx="212" cy="56" r="3.5" fill="#0b0a07" stroke="#f2ca50" stroke-width="1.6"/>
-<g transform="translate(134.5,31.5) rotate(7)"><path d="M10,0 L-7,-5.5 L-3.5,0 L-7,5.5 Z" fill="#f2ca50"/></g>
-</svg>
-<div class="mock-airport"><b>JFK</b><i>11:20</i></div>
-</div>
-<div class="mock-tags"><span class="mock-tag">GATE B22</span><span class="mock-tag">T2</span><span class="mock-tag">A330</span></div>
-</div>
-</div>
+
+<!-- ══════ DEPARTURES BOARD ══════ -->
+<section class="board-sec" id="board">
+  <div class="wrap reveal">
+    <div class="board">
+      <div class="board-head">
+        <span class="t">Departures</span>
+        <span class="live"><span class="dot"></span>Live</span>
+      </div>
+      <div class="board-rows" id="boardRows"></div>
+    </div>
+  </div>
 </section>
 
-<!-- Story: the passport -->
-<section class="story flip reveal max-w-container-max mx-auto px-lg py-xl md:py-xxl">
-<div class="story-copy">
-<h2>Every flight leaves a mark.</h2>
-<p>Land, and the trip files itself. Airports become stamps, countries fill your map, aircraft
-join your collection, and your lifetime distance climbs toward the next tier, Bronze to
-Platinum. No spreadsheets, no manual logging. Your travel identity builds itself while you
-fly.</p>
-</div>
-<div class="story-visual">
-<div class="stamps">
-<span class="stamp" style="--r:-7deg">DUB</span>
-<span class="stamp" style="--r:4deg">CDG</span>
-<span class="stamp" style="--r:-3deg">JFK</span>
-<span class="stamp" style="--r:6deg">NRT</span>
-</div>
-<div class="tiers">
-<span class="tier" style="--c:#CD7F32">BRONZE</span>
-<span class="tier" style="--c:#A7AEB8">SILVER</span>
-<span class="tier cur" style="--c:#F2CA50">GOLD</span>
-<span class="tier" style="--c:#E9F1FA">PLATINUM</span>
-</div>
-<p class="statline">52,847 km · 23 airports · 12 countries</p>
-</div>
+<!-- ══════ STORY: TRACKING ══════ -->
+<div class="wrap">
+<section class="story reveal" id="features">
+  <div class="s-copy">
+    <span class="eyebrow">The day of the flight</span>
+    <h2>Know before the airport does.</h2>
+    <p>The hour before a flight is the anxious one. Overwing watches it so you don&#8217;t have to:
+    gate changes and delay alerts land on your phone the moment they&#8217;re filed, often before
+    the departure board blinks. Once you&#8217;re airborne, the people picking you up follow the
+    same live map you do, from pushback to touchdown.</p>
+  </div>
+  <div class="s-visual">
+    <div class="mockcard">
+      <div class="mc-top"><span class="mc-fn">EI 105</span><span class="chip-live">EN ROUTE</span></div>
+      <div class="mc-route">
+        <div class="mc-ap"><b>DUB</b><i>08:45</i></div>
+        <svg class="mc-arc" viewBox="0 0 220 66" aria-hidden="true">
+          <path d="M8,58 Q110,6 212,58" fill="none" stroke="rgba(242,202,80,.25)" stroke-width="2.5" stroke-dasharray="1 7" stroke-linecap="round"/>
+          <path d="M8,58 Q110,6 212,58" fill="none" stroke="#f2ca50" stroke-width="2.5" pathLength="100" stroke-dasharray="62 100" stroke-linecap="round"/>
+          <circle cx="8" cy="58" r="3.5" fill="#f2ca50"/>
+          <circle cx="212" cy="58" r="3.5" fill="#0b0a07" stroke="#f2ca50" stroke-width="1.6"/>
+          <g transform="translate(135,32) rotate(6)"><path d="M11,0 L-7,-6 L-3,0 L-7,6 Z" fill="#f2ca50"/></g>
+        </svg>
+        <div class="mc-ap"><b>JFK</b><i>11:20</i></div>
+      </div>
+      <div class="mc-tags"><span class="tag-gold">GATE B22</span><span class="tag-gold">TERMINAL 2</span><span class="tag-gold">A330</span></div>
+    </div>
+  </div>
 </section>
 
-<!-- Story: the journal -->
-<section class="story reveal max-w-container-max mx-auto px-lg py-xl md:py-xxl">
-<div class="story-copy">
-<h2>Remember how it felt.</h2>
-<p>A journal entry waits after every landing: the photos you took, the people in seat 11B, a
-line about the view. Label the trip Vacation or Business and find it again at a glance. Come
-December, Wrapped turns your year in the air into a story worth sharing.</p>
-</div>
-<div class="story-visual">
-<div class="polas">
-<div class="pola" style="--tilt:-5deg"><div class="ph ph1"></div><span>Santorini, June</span></div>
-<div class="pola" style="--tilt:4deg"><div class="ph ph2"></div><span>Window seat, 11A</span></div>
-</div>
-<span class="wrapped-chip">WRAPPED 2026</span>
-</div>
+<!-- ══════ STORY: PASSPORT ══════ -->
+<section class="story flip reveal">
+  <div class="s-copy">
+    <span class="eyebrow">Your travel identity</span>
+    <h2>Every flight leaves a mark.</h2>
+    <p>Land, and the trip files itself. Airports become stamps, countries fill your map, aircraft
+    join your collection, and your lifetime distance climbs toward the next tier. No spreadsheets,
+    no manual logging. Your travel identity builds itself while you fly.</p>
+  </div>
+  <div class="s-visual">
+    <div class="stamps">
+      <span class="stamp" style="--r:-7deg">DUB</span>
+      <span class="stamp" style="--r:4deg">CDG</span>
+      <span class="stamp" style="--r:-3deg">JFK</span>
+      <span class="stamp" style="--r:6deg">NRT</span>
+    </div>
+    <div class="tiers">
+      <span class="tier" style="--c:#CD7F32">BRONZE</span>
+      <span class="tier" style="--c:#A7AEB8">SILVER</span>
+      <span class="tier cur" style="--c:#F2CA50">GOLD</span>
+      <span class="tier" style="--c:#E9F1FA">PLATINUM</span>
+    </div>
+    <p class="statline">52,847 km · 23 airports · 12 countries</p>
+  </div>
 </section>
 
-<!-- The letter -->
-<section class="reveal px-lg py-xl md:py-xxl">
-<div class="letter-panel">
-<span class="letter-eyebrow">A LETTER FROM THE TRAVELER</span>
-<p>Overwing exists because I wanted a calm, private, genuinely beautiful place to keep my own
-journeys, and couldn&#8217;t find one. So I built it: one person, a desk in Dublin, late nights
-and far too much coffee.</p>
-<p>There&#8217;s no growth team here, no roadmap committee, no ads to chase. Just an app shaped
-with care for people who love the window seat as much as I do.</p>
-<p>Thank you for flying with Overwing.</p>
-<p class="letter-sign"><b>Ronit</b> · Dublin</p>
+<!-- ══════ STORY: JOURNAL ══════ -->
+<section class="story reveal">
+  <div class="s-copy">
+    <span class="eyebrow">The memory layer</span>
+    <h2>Remember how it felt.</h2>
+    <p>A journal entry waits after every landing: the photos you took, the people in seat 11B, a
+    line about the view. Tag each trip Vacation or Business and find it again at a glance. Come
+    December, Wrapped turns your year in the air into a story worth sharing.</p>
+  </div>
+  <div class="s-visual">
+    <div class="polas">
+      <div class="pola" style="--tilt:-5deg"><div class="ph ph1"></div><span>Santorini, June</span></div>
+      <div class="pola" style="--tilt:4deg"><div class="ph ph2"></div><span>Window seat, 11A</span></div>
+    </div>
+    <div class="jlabels">
+      <span class="jlabel on">Vacation</span>
+      <span class="jlabel">Business</span>
+      <span class="jlabel">Family</span>
+    </div>
+  </div>
+</section>
 </div>
+
+<!-- ══════ EVERYTHING GRID ══════ -->
+<section class="allfeat">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Everything inside</span>
+      <h2>One app, the whole journey.</h2>
+      <p>From the search bar to the year-in-review, here&#8217;s what Overwing does.</p>
+    </div>
+    <div class="fgrid reveal">
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/></svg></div>
+        <h3>Live tracking</h3><p>Real-time position, altitude, and speed, with gate, delay, and boarding alerts as they happen.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
+        <h3>Live map</h3><p>Watch your aircraft cross the globe on a real flight path, from pushback to touchdown.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M11 8h6M11 12h6M11 16h3"/></svg></div>
+        <h3>Boarding-pass scan</h3><p>Point your camera at the barcode and the flight adds itself, seat and all.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+        <h3>Search by number or route</h3><p>Find a flight by its number, or a whole city pair when you don&#8217;t know it yet.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg></div>
+        <h3>Tiers &amp; stamps</h3><p>Bronze to Platinum, airport stamps, country map, and an aircraft collection.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18l-6-3-6 3z"/></svg></div>
+        <h3>Flight journal</h3><p>Photos, star ratings, companions, notes, and one glanceable trip label per journey.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3>Wrapped</h3><p>A cinematic year-in-review of your flying, with a transparent sticker to paste into your story.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v8h16v-8M12 3v13M8 7l4-4 4 4"/></svg></div>
+        <h3>Share cards</h3><p>Turn any flight into a card, story, strip, or transparent sticker for anywhere you share.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
+        <h3>Home-screen widgets</h3><p>Five of them: Next Flight, Live Flight, Boarding Pass, Countdown, and Travel Passport.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M17 8a5 5 0 0 0-10 0c0 4-2 5-2 5h14s-2-1-2-5z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
+        <h3>Companion tracking</h3><p>Assign a friend or family member to a flight and get their day-of alerts too.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3>Private &amp; offline</h3><p>Runs fully offline with no account. Sign in only to back up to your own private cloud.</p>
+      </div>
+      <div class="fcell">
+        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>Cloud backup</h3><p>Flights and journal sync to your account. Reinstall, sign in, and everything returns.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Manifesto -->
-<section class="reveal bg-surface-container-low py-xxl border-y border-secondary/10 mb-xxl">
-<div class="max-w-container-max mx-auto px-lg text-center">
-<p class="font-label-sm text-label-sm uppercase tracking-[0.2em] text-secondary opacity-80 flex flex-wrap justify-center gap-md md:gap-xl">
-<span>No ads.</span>
-<span class="hidden md:inline">·</span>
-<span>No data selling.</span>
-<span class="hidden md:inline">·</span>
-<span>No investors.</span>
-<span class="hidden md:inline">·</span>
-<span>Built by one traveler in Dublin.</span>
-</p>
-</div>
+<!-- ══════ PHONE SHOWCASE ══════ -->
+<section class="phones">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">See it move</span>
+      <h2>Dark, calm, and built to glance.</h2>
+      <p>Obsidian and gold, mono flight codes, and a route arc that follows every journey.</p>
+    </div>
+    <div class="phone-row reveal">
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="ps-status"><span>9:41</span><span>Overwing</span></div>
+          <div class="ps-body">
+            <div class="ps-title">Flights</div>
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-fn">EI 105</span><span class="chip-live">EN ROUTE</span></div>
+              <div class="mini-route"><div class="mini-ap"><b>DUB</b><i>08:45</i></div>
+                <svg class="mini-arc" viewBox="0 0 160 40" aria-hidden="true">
+                  <path d="M6,34 Q80,4 154,34" fill="none" stroke="rgba(242,202,80,.25)" stroke-width="2" stroke-dasharray="1 6"/>
+                  <path d="M6,34 Q80,4 154,34" fill="none" stroke="#f2ca50" stroke-width="2" pathLength="100" stroke-dasharray="58 100"/>
+                  <g transform="translate(96,17) rotate(8)"><path d="M8,0 L-5,-4 L-2,0 L-5,4 Z" fill="#f2ca50"/></g>
+                </svg>
+                <div class="mini-ap"><b>JFK</b><i>11:20</i></div></div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-fn">BA 292</span><span style="font-family:var(--mono);font-size:10px;color:#8f8877">TOMORROW</span></div>
+              <div class="mini-route"><div class="mini-ap"><b>LHR</b><i>14:10</i></div>
+                <svg class="mini-arc" viewBox="0 0 160 40" aria-hidden="true">
+                  <path d="M6,34 Q80,4 154,34" fill="none" stroke="rgba(242,202,80,.2)" stroke-width="2" stroke-dasharray="1 6"/>
+                  <circle cx="6" cy="34" r="3" fill="#f2ca50"/></svg>
+                <div class="mini-ap"><b>AUS</b><i>18:35</i></div></div>
+            </div>
+          </div>
+        </div></div>
+        <p class="caption">Flights</p>
+      </div>
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="ps-status"><span>9:41</span><span>Overwing</span></div>
+          <div class="ps-body">
+            <div class="ps-title">Passport</div>
+            <div class="mini-card" style="text-align:center">
+              <div class="hero-stat">52,847</div><div class="hero-stat-l">kilometres flown</div>
+            </div>
+            <div class="grid2">
+              <div class="stat-box"><b>23</b><span>Airports</span></div>
+              <div class="stat-box"><b>12</b><span>Countries</span></div>
+              <div class="stat-box"><b>18</b><span>Aircraft</span></div>
+              <div class="stat-box" style="border-color:rgba(242,202,80,.4)"><b style="color:#f2ca50">GOLD</b><span>Current tier</span></div>
+            </div>
+          </div>
+        </div></div>
+        <p class="caption">Passport</p>
+      </div>
+      <div>
+        <div class="phone"><div class="phone-screen">
+          <div class="ps-status"><span>9:41</span><span>Overwing</span></div>
+          <div class="ps-body">
+            <div class="ps-title">Journal</div>
+            <div class="mini-card">
+              <div class="mini-top"><span class="mini-fn">EI 105 · DUB → JFK</span></div>
+              <div style="display:flex;gap:6px;margin:4px 0 10px">
+                <span class="jlabel on" style="font-size:9.5px;padding:3px 9px">Vacation</span>
+                <span style="font-family:var(--mono);font-size:11px;color:#f2ca50">★★★★★</span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <div style="width:52px;height:52px;border-radius:6px;background:linear-gradient(160deg,#f2a04b,#b8562e 50%,#26140c)"></div>
+                <div style="width:52px;height:52px;border-radius:6px;background:linear-gradient(200deg,#6b86b8,#2a3c5e 55%,#10131c)"></div>
+                <div style="width:52px;height:52px;border-radius:6px;background:linear-gradient(150deg,#4c6b52,#233a2a 55%,#0e1712)"></div>
+              </div>
+            </div>
+            <p style="font-family:var(--body);font-size:12px;color:#c9c1b0;margin:2px 4px;line-height:1.5">
+              &#8220;Best sunrise I&#8217;ve seen at 38,000 ft.&#8221;</p>
+          </div>
+        </div></div>
+        <p class="caption">Journal</p>
+      </div>
+    </div>
+    <p class="caption" style="margin-top:26px;opacity:.7">Recreated UI · real screenshots at launch</p>
+  </div>
 </section>
-</main>
-<footer class="bg-surface-container-lowest border-t border-on-surface/10 w-full py-xl px-lg md:px-xxl">
-<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-lg">
-<div class="flex flex-col gap-xs items-center md:items-start">
-<span class="font-display-lg text-headline-md text-primary">Overwing</span>
-<p class="font-label-sm text-label-sm text-on-surface-variant opacity-60">© 2026 Overwing · Dublin</p>
-</div>
-<div class="flex items-center gap-xl md:gap-xxl">
-<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="https://aerolog-9696e.web.app">Privacy Policy</a>
-<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-secondary transition-colors" href="mailto:illusionistboi@proton.me">Contact</a>
-</div>
-</div>
+
+<!-- ══════ PRICING ══════ -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Honest pricing</span>
+      <h2>Free for almost everything.</h2>
+      <p>Pro exists to cover what actually costs money to run, not to lock away the good parts.</p>
+    </div>
+    <div class="plans reveal">
+      <div class="plan">
+        <div class="pname">Free</div>
+        <div class="price">&euro;0</div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Live tracking, gate &amp; delay alerts</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Boarding-pass scan &amp; route search</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Full travel passport &amp; tiers</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Journal, Wrapped, share cards</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>All five widgets</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Cloud backup of flights &amp; journal</li>
+        </ul>
+      </div>
+      <div class="plan pro">
+        <div class="pname">Overwing Pro</div>
+        <div class="price">&euro;4.99<small> / year</small></div>
+        <ul>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Everything in Free</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Unlimited manual flight updates</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Photo backup for journal &amp; contacts</li>
+          <li><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Supports one-person development</li>
+        </ul>
+        <p class="pnote">Auto-renews yearly until cancelled. Manage or cancel anytime in Google Play.
+          Day-of alerts for your saved flights stay free, always.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ FAQ ══════ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow">Good to know</span>
+      <h2>Questions, answered.</h2>
+    </div>
+    <div class="faq-list reveal">
+      <details><summary>Is Overwing free?<span class="plus"></span></summary>
+        <div class="ans">Yes. Live tracking, alerts, the travel passport, journal, Wrapped, all five widgets, and cloud backup are free. Overwing Pro (&euro;4.99/year) adds unlimited manual flight updates and photo backup, and helps cover the aviation-data costs.</div></details>
+      <details><summary>Do I need an account?<span class="plus"></span></summary>
+        <div class="ans">No. Overwing runs fully offline and never forces a sign-up. You only sign in with Google if you want to back up your flights and journal to your own private cloud, so they survive a new phone.</div></details>
+      <details><summary>Is my data private?<span class="plus"></span></summary>
+        <div class="ans">Completely. No ads, no trackers, no data selling. Your data lives on your device unless you choose to sign in, and even then it&#8217;s in your own account, which you can delete at any time from Settings. The app doesn&#8217;t use your location.</div></details>
+      <details><summary>Which flights can I track?<span class="plus"></span></summary>
+        <div class="ans">Any scheduled commercial flight. Add it by flight number, search a whole city pair by route, or scan the barcode on your boarding pass and it fills itself in.</div></details>
+      <details><summary>How accurate are the alerts?<span class="plus"></span></summary>
+        <div class="ans">Overwing pulls from aggregated aviation data and live aircraft positions, so gate and delay changes often reach you before the airport&#8217;s own boards update. When a live position isn&#8217;t available, the map shows an honest estimate based on the route and schedule.</div></details>
+      <details><summary>Does it work offline?<span class="plus"></span></summary>
+        <div class="ans">Yes. It&#8217;s local-first: your saved flights, passport, and journal all work with no connection. Live updates simply resume when you&#8217;re back online.</div></details>
+      <details><summary>Will it drain my battery?<span class="plus"></span></summary>
+        <div class="ans">No. Background updates are throttled and batched, and the app doesn&#8217;t track your device location or run constant GPS. It&#8217;s built to sit quietly until there&#8217;s something worth telling you.</div></details>
+      <details><summary>Can I track a friend&#8217;s or family&#8217;s flight?<span class="plus"></span></summary>
+        <div class="ans">Yes. Assign a companion to any flight and you&#8217;ll get their gate, delay, and landing alerts, perfect for knowing exactly when to leave for the airport pickup.</div></details>
+      <details><summary>How do the tiers work?<span class="plus"></span></summary>
+        <div class="ans">Your first completed flight unlocks Bronze. Silver is 5 flights and 2,500 km, Gold is 15 and 10,000 km, and Platinum is 30 flights and 30,000 km. Historical flights you import count too.</div></details>
+      <details><summary>Is there an iPhone version?<span class="plus"></span></summary>
+        <div class="ans">Not yet. Overwing is Android-first, built by one person. iOS may follow if there&#8217;s demand.</div></details>
+      <details><summary>When does it launch?<span class="plus"></span></summary>
+        <div class="ans">Soon, on Google Play, starting with a closed beta. The fastest way to hear about it is to <a href="mailto:illusionistboi@proton.me?subject=Overwing%20beta">email and ask to join</a>.</div></details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ LETTER ══════ -->
+<section class="letter-sec">
+  <div class="wrap reveal">
+    <div class="letter">
+      <span class="eyebrow">A letter from the traveler</span>
+      <p>Overwing exists because I wanted a calm, private, genuinely beautiful place to keep my own
+      journeys, and couldn&#8217;t find one. So I built it: one person, a desk in Dublin, late
+      nights and far too much coffee.</p>
+      <p>There&#8217;s no growth team here, no roadmap committee, no ads to chase. Just an app shaped
+      with care for people who love the window seat as much as I do.</p>
+      <p>Thank you for flying with Overwing.</p>
+      <p class="sign"><b>Ronit</b> · Dublin</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════ MANIFESTO ══════ -->
+<section class="manifesto reveal">
+  <div class="wrap row">
+    <span>No ads.</span><span class="sep">·</span>
+    <span>No data selling.</span><span class="sep">·</span>
+    <span>No investors.</span><span class="sep">·</span>
+    <span>Built by one traveler in Dublin.</span>
+  </div>
+</section>
+
+<!-- ══════ FOOTER ══════ -->
+<footer>
+  <div class="wrap foot">
+    <div>
+      <div class="fbrand">Over<b>wing</b></div>
+      <div class="fcopy">© 2026 Overwing · Dublin</div>
+    </div>
+    <div class="foot-links">
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://aerolog-9696e.web.app">Privacy Policy</a>
+      <a href="mailto:illusionistboi@proton.me">Contact</a>
+    </div>
+  </div>
 </footer>
+
 <script>
-        // Gold cursor glow on the feature cards (pairs with .glass-card::before)
-        document.querySelectorAll('.glass-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                card.style.setProperty('--mouse-x', (e.clientX - rect.left) + 'px');
-                card.style.setProperty('--mouse-y', (e.clientY - rect.top) + 'px');
-            });
-        });
-        // Reveal-on-scroll (no-ops under prefers-reduced-motion via CSS)
-        const io = new IntersectionObserver((entries) => {
-            entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-    </script>
-</body></html>
+  // ——— Reveal on scroll ———
+  const io = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ——— Split-flap departures board ———
+  const DEPS = [
+    ["06:25","DUBLIN","BOARDING","gold"],["10:40","TOKYO","ON TIME","green"],
+    ["14:15","PARIS","DELAYED","red"],["08:05","DUBAI","ON TIME","green"],
+    ["21:30","SYDNEY","BOARDING","gold"],["16:45","LISBON","ON TIME","green"],
+    ["07:20","ATHENS","DELAYED","red"],["12:10","MUMBAI","ON TIME","green"],
+    ["19:55","BOSTON","BOARDING","gold"],["09:35","MADRID","ON TIME","green"],
+    ["11:50","BERLIN","ON TIME","green"],["18:20","CAIRO","DELAYED","red"],
+    ["13:05","OSLO","BOARDING","gold"],["20:10","VIENNA","BOARDING","gold"],
+    ["22:15","SEOUL","BOARDING","gold"],["17:25","MILAN","ON TIME","green"],
+    ["14:45","ZURICH","ON TIME","green"],["23:05","MANILA","BOARDING","gold"],
+    ["10:15","HAVANA","BOARDING","gold"],["13:40","NAPLES","ON TIME","green"]
+  ];
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+  const ROWS = 5, CELLS = 7;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const container = document.getElementById("boardRows");
+
+  function pad(s){ return (s + "       ").slice(0, CELLS); }
+
+  // build rows
+  const rowEls = [];
+  for (let r = 0; r < ROWS; r++){
+    const dep = DEPS[r];
+    const row = document.createElement("div");
+    row.className = "frow";
+    const time = document.createElement("div"); time.className = "ftime"; time.textContent = dep[0];
+    const dest = document.createElement("div"); dest.className = "fdest";
+    const cells = [];
+    const padded = pad(dep[1]);
+    for (let c = 0; c < CELLS; c++){
+      const cell = document.createElement("div"); cell.className = "flap";
+      cell.textContent = padded[c] === " " ? " " : padded[c];
+      dest.appendChild(cell); cells.push(cell);
+    }
+    const st = document.createElement("div"); st.className = "fstatus st-" + dep[3]; st.textContent = dep[2];
+    row.append(time, dest, st);
+    container.appendChild(row);
+    rowEls.push({ time, cells, st, dest: dep[1] });
+  }
+
+  function setRow(idx, dep){
+    const ro = rowEls[idx];
+    ro.time.textContent = dep[0];
+    ro.st.textContent = dep[2];
+    ro.st.className = "fstatus st-" + dep[3];
+    ro.dest = dep[1];
+    const target = pad(dep[1]);
+    ro.cells.forEach((cell, c) => {
+      if (reduced){ cell.textContent = target[c] === " " ? " " : target[c]; return; }
+      // quick scramble-settle per character, staggered left→right
+      let ticks = 4 + c;
+      const iv = setInterval(() => {
+        cell.classList.add("flip");
+        setTimeout(() => cell.classList.remove("flip"), 120);
+        ticks--;
+        if (ticks <= 0){
+          clearInterval(iv);
+          cell.textContent = target[c] === " " ? " " : target[c];
+        } else {
+          cell.textContent = CHARS[Math.floor(Math.random()*CHARS.length)];
+        }
+      }, 90);
+    });
+  }
+
+  if (!reduced){
+    let cursor = ROWS;
+    setInterval(() => {
+      const used = rowEls.map(r => r.dest);
+      const idx = Math.floor(Math.random() * ROWS);
+      let dep;
+      do { dep = DEPS[cursor % DEPS.length]; cursor++; } while (used.includes(dep[1]));
+      setRow(idx, dep);
+    }, 2600);
+  }
+</script>
+</body>
+</html>
