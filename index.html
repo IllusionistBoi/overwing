@@ -68,17 +68,20 @@
 
   /* ——— Hero ——— */
   .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;
-    align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;
-    padding-top:clamp(96px,15vh,190px);padding-inline:20px}
+    align-items:center;justify-content:center;text-align:center;overflow:hidden;
+    padding:110px 20px 92px}
   .hero-photo{position:absolute;inset:0;z-index:0}
-  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 42%;opacity:.72;
+  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 52%;opacity:.82;
     animation:heroSettle 3s cubic-bezier(.22,1,.36,1) both}
-  /* dark at top (text band) + bottom, clear through the middle so the sun shows */
+  /* cinematic gradient: dark top + bottom, luminous middle, plus a soft central vignette so the
+     centered copy always reads no matter what's behind it */
   .hero-scrim{position:absolute;inset:0;z-index:1;
-    background:linear-gradient(180deg,#050505 4%,rgba(5,5,5,.55) 26%,rgba(5,5,5,.12) 46%,rgba(5,5,5,.2) 66%,#050505 98%)}
+    background:
+      radial-gradient(120% 78% at 50% 44%, rgba(5,5,5,.72) 0%, rgba(5,5,5,.28) 32%, transparent 58%),
+      linear-gradient(180deg,#050505 2%,rgba(5,5,5,.5) 22%,rgba(5,5,5,.08) 46%,rgba(5,5,5,.28) 70%,#050505 99%)}
   /* animated sun, blended onto the photo's horizon */
-  .sun{position:absolute;left:50%;top:60%;transform:translate(-50%,-50%);z-index:1;
-    width:min(56vw,420px);aspect-ratio:1;pointer-events:none;mix-blend-mode:screen}
+  .sun{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:1;
+    width:min(64vw,480px);aspect-ratio:1;pointer-events:none;mix-blend-mode:screen}
   .sun-rays{position:absolute;inset:-40%;border-radius:50%;
     background:conic-gradient(from 0deg,
       rgba(242,202,80,0) 0deg, rgba(242,202,80,.16) 8deg, rgba(242,202,80,0) 16deg,
@@ -101,7 +104,13 @@
     background:radial-gradient(circle,rgba(255,214,120,.5) 0%,rgba(242,202,80,.22) 26%,transparent 60%);
     animation:sunBreathe 5.5s ease-in-out infinite}
   .hero-content{position:relative;z-index:2;max-width:920px}
-  .hero h1{font-size:clamp(56px,13vw,120px);font-weight:800;line-height:.98;color:var(--cream);
+  .hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.32em;text-transform:uppercase;
+    color:var(--gold);display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;
+    text-shadow:0 2px 14px rgba(0,0,0,.9)}
+  .hero-eyebrow::before,.hero-eyebrow::after{content:"";width:26px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(242,202,80,.6))}
+  .hero-eyebrow::after{transform:scaleX(-1)}
+  .hero h1{font-size:clamp(52px,11vw,104px);font-weight:800;line-height:.96;color:var(--cream);
     text-shadow:0 4px 40px rgba(0,0,0,.6)}
   .hero h1 b{color:var(--gold);font-weight:800}
   .hero .tagline{font-family:var(--display);font-weight:600;font-size:clamp(19px,3.4vw,26px);
@@ -156,6 +165,14 @@
 
   /* ——— Section scaffold ——— */
   section{position:relative}
+  /* recurring brand motif: a thin horizon line that glows gold at its centre, sitting where the
+     sun meets the sea. Breaks the flat-black scroll and ties every chapter to the wing-at-sunrise idea. */
+  .horizon{height:1px;max-width:1100px;margin:0 auto;position:relative;
+    background:linear-gradient(90deg,transparent,rgba(242,202,80,.28) 35%,rgba(242,202,80,.5) 50%,rgba(242,202,80,.28) 65%,transparent)}
+  .horizon::after{content:"";position:absolute;left:50%;top:50%;width:5px;height:5px;border-radius:50%;
+    transform:translate(-50%,-50%);background:var(--gold);box-shadow:0 0 12px 2px rgba(242,202,80,.6)}
+  /* subtle warm lift so alternating chapters separate without a hard edge */
+  .tint{background:radial-gradient(120% 100% at 50% 0%,rgba(20,18,11,.9),#060605 70%)}
   .sec-head{text-align:center;max-width:640px;margin:0 auto clamp(36px,6vw,60px)}
   .sec-head h2{font-size:clamp(30px,5vw,46px);font-weight:700;color:var(--cream);margin-top:14px;line-height:1.1}
   .sec-head p{color:var(--muted);font-size:17px;margin:16px 0 0}
@@ -209,6 +226,12 @@
 
   /* ——— Everything grid ——— */
   .allfeat{padding:clamp(48px,8vw,90px) 0}
+  .fgroup{margin-bottom:42px}
+  .fgroup:last-child{margin-bottom:0}
+  .fgroup-label{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  .fgroup-label span{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--gold);white-space:nowrap}
+  .fgroup-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(242,202,80,.25),transparent)}
   .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
   .fcell{background:var(--surface);border:1px solid var(--edge);border-radius:16px;padding:24px;
     transition:border-color .3s,transform .3s}
@@ -223,7 +246,10 @@
   .phones{padding:clamp(48px,8vw,90px) 0;overflow:hidden}
   .phone-row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
   .phone{width:240px;flex:0 0 auto;border-radius:34px;padding:9px;background:linear-gradient(160deg,#26241d,#0c0b08);
-    border:1px solid rgba(242,202,80,.15);box-shadow:0 30px 70px rgba(0,0,0,.6)}
+    border:1px solid rgba(242,202,80,.15);box-shadow:0 30px 70px rgba(0,0,0,.6);
+    animation:floaty 7s ease-in-out infinite}
+  .phone-row>div:nth-child(2) .phone{animation-delay:-2.3s}
+  .phone-row>div:nth-child(3) .phone{animation-delay:-4.6s}
   .phone-screen{border-radius:26px;overflow:hidden;background:var(--obsidian);height:480px;position:relative;
     display:flex;flex-direction:column}
   .ps-status{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 4px;
@@ -314,6 +340,7 @@
   @keyframes sunBreathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.08);opacity:.95}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+  @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   @keyframes flap{0%{transform:rotateX(0);filter:brightness(1)}50%{transform:rotateX(-90deg);filter:brightness(.5)}100%{transform:rotateX(0);filter:brightness(1)}}
   .reveal{opacity:0;transform:translateY(28px);
@@ -325,7 +352,7 @@
   @media(prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
     .hero-photo img,.stagger,.reveal{animation:none;opacity:1;transform:none;transition:none}
-    .sun-halo,.sun-rays,.chev,.board-head .dot{animation:none}
+    .sun-halo,.sun-rays,.chev,.board-head .dot,.phone{animation:none}
     .flap.flip{animation:none}
   }
 </style>
@@ -354,9 +381,10 @@
     <div class="sun-halo"></div>
   </div>
   <div class="hero-content">
-    <h1 class="stagger d1">Over<b>wing</b></h1>
-    <p class="tagline stagger d2">Your window seat for every flight.</p>
-    <p class="sub stagger d3">Live flight tracking, gate alerts, and a passport of everywhere
+    <span class="hero-eyebrow stagger d1">Android Flight Tracker</span>
+    <h1 class="stagger d2">Over<b>wing</b></h1>
+    <p class="tagline stagger d3">Your window seat for every flight.</p>
+    <p class="sub stagger d4">Live flight tracking, gate alerts, and a passport of everywhere
       you&#8217;ve flown. Free, private, made by one traveler.</p>
     <div class="hero-actions stagger d4">
       <a class="btn-play" href="#top">
@@ -384,6 +412,8 @@
     </div>
   </div>
 </section>
+
+<div class="wrap"><div class="horizon reveal"></div></div>
 
 <!-- ══════ STORY: TRACKING ══════ -->
 <div class="wrap">
@@ -464,62 +494,77 @@
 </section>
 </div>
 
+<div class="wrap"><div class="horizon reveal"></div></div>
+
 <!-- ══════ EVERYTHING GRID ══════ -->
-<section class="allfeat">
+<section class="allfeat tint">
   <div class="wrap">
     <div class="sec-head reveal">
       <span class="eyebrow">Everything inside</span>
       <h2>One app, the whole journey.</h2>
       <p>From the search bar to the year-in-review, here&#8217;s what Overwing does.</p>
     </div>
-    <div class="fgrid reveal">
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/></svg></div>
-        <h3>Live tracking</h3><p>Real-time position, altitude, and speed, with gate, delay, and boarding alerts as they happen.</p>
+    <div class="fgroup reveal">
+      <div class="fgroup-label"><span>In the air</span></div>
+      <div class="fgrid">
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l3 7 7 .5-5.5 4.5 2 7L12 17l-6.5 4 2-7L2 9.5 9 9z"/></svg></div>
+          <h3>Live tracking</h3><p>Real-time position, altitude, and speed, with gate, delay, and boarding alerts as they happen.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
+          <h3>Live map</h3><p>Watch your aircraft cross the globe on a real flight path, from pushback to touchdown.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M11 8h6M11 12h6M11 16h3"/></svg></div>
+          <h3>Boarding-pass scan</h3><p>Point your camera at the barcode and the flight adds itself, seat and all.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
+          <h3>Search by number or route</h3><p>Find a flight by its number, or a whole city pair when you don&#8217;t know it yet.</p>
+        </div>
       </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></div>
-        <h3>Live map</h3><p>Watch your aircraft cross the globe on a real flight path, from pushback to touchdown.</p>
+    </div>
+    <div class="fgroup reveal">
+      <div class="fgroup-label"><span>Your travel record</span></div>
+      <div class="fgrid">
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg></div>
+          <h3>Tiers &amp; stamps</h3><p>Bronze to Platinum, airport stamps, country map, and an aircraft collection.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18l-6-3-6 3z"/></svg></div>
+          <h3>Flight journal</h3><p>Photos, star ratings, companions, notes, and one glanceable trip label per journey.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <h3>Wrapped</h3><p>A cinematic year-in-review of your flying, with a transparent sticker to paste into your story.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v8h16v-8M12 3v13M8 7l4-4 4 4"/></svg></div>
+          <h3>Share cards</h3><p>Turn any flight into a card, story, strip, or transparent sticker for anywhere you share.</p>
+        </div>
       </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M11 8h6M11 12h6M11 16h3"/></svg></div>
-        <h3>Boarding-pass scan</h3><p>Point your camera at the barcode and the flight adds itself, seat and all.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></div>
-        <h3>Search by number or route</h3><p>Find a flight by its number, or a whole city pair when you don&#8217;t know it yet.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.5 5 5.5.8-4 4 1 5.5L12 15l-5 2.3 1-5.5-4-4 5.5-.8z"/></svg></div>
-        <h3>Tiers &amp; stamps</h3><p>Bronze to Platinum, airport stamps, country map, and an aircraft collection.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18l-6-3-6 3z"/></svg></div>
-        <h3>Flight journal</h3><p>Photos, star ratings, companions, notes, and one glanceable trip label per journey.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/><circle cx="12" cy="12" r="3"/></svg></div>
-        <h3>Wrapped</h3><p>A cinematic year-in-review of your flying, with a transparent sticker to paste into your story.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 12v8h16v-8M12 3v13M8 7l4-4 4 4"/></svg></div>
-        <h3>Share cards</h3><p>Turn any flight into a card, story, strip, or transparent sticker for anywhere you share.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
-        <h3>Home-screen widgets</h3><p>Five of them: Next Flight, Live Flight, Boarding Pass, Countdown, and Travel Passport.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M17 8a5 5 0 0 0-10 0c0 4-2 5-2 5h14s-2-1-2-5z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
-        <h3>Companion tracking</h3><p>Assign a friend or family member to a flight and get their day-of alerts too.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-        <h3>Private &amp; offline</h3><p>Runs fully offline with no account. Sign in only to back up to your own private cloud.</p>
-      </div>
-      <div class="fcell">
-        <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3>Cloud backup</h3><p>Flights and journal sync to your account. Reinstall, sign in, and everything returns.</p>
+    </div>
+    <div class="fgroup reveal">
+      <div class="fgroup-label"><span>Always on</span></div>
+      <div class="fgrid">
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
+          <h3>Home-screen widgets</h3><p>Five of them: Next Flight, Live Flight, Boarding Pass, Countdown, and Travel Passport.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M17 8a5 5 0 0 0-10 0c0 4-2 5-2 5h14s-2-1-2-5z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></div>
+          <h3>Companion tracking</h3><p>Assign a friend or family member to a flight and get their day-of alerts too.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <h3>Private &amp; offline</h3><p>Runs fully offline with no account. Sign in only to back up to your own private cloud.</p>
+        </div>
+        <div class="fcell">
+          <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <h3>Cloud backup</h3><p>Flights and journal sync to your account. Reinstall, sign in, and everything returns.</p>
+        </div>
       </div>
     </div>
   </div>
@@ -607,8 +652,10 @@
   </div>
 </section>
 
+<div class="wrap"><div class="horizon reveal"></div></div>
+
 <!-- ══════ PRICING ══════ -->
-<section class="pricing" id="pricing">
+<section class="pricing tint" id="pricing">
   <div class="wrap">
     <div class="sec-head reveal">
       <span class="eyebrow">Honest pricing</span>
