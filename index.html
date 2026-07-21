@@ -68,20 +68,20 @@
 
   /* ——— Hero ——— */
   .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;text-align:center;overflow:hidden;
-    padding:110px 20px 92px}
-  .hero-photo{position:absolute;inset:0;z-index:0}
-  .hero-photo img{width:100%;height:100%;object-fit:cover;object-position:center 52%;opacity:.82;
-    animation:heroSettle 3s cubic-bezier(.22,1,.36,1) both}
-  /* cinematic gradient: dark top + bottom, luminous middle, plus a soft central vignette so the
-     centered copy always reads no matter what's behind it */
-  .hero-scrim{position:absolute;inset:0;z-index:1;
-    background:
-      radial-gradient(120% 78% at 50% 44%, rgba(5,5,5,.72) 0%, rgba(5,5,5,.28) 32%, transparent 58%),
-      linear-gradient(180deg,#050505 2%,rgba(5,5,5,.5) 22%,rgba(5,5,5,.08) 46%,rgba(5,5,5,.28) 70%,#050505 99%)}
-  /* animated sun, blended onto the photo's horizon */
-  .sun{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);z-index:1;
-    width:min(64vw,480px);aspect-ratio:1;pointer-events:none;mix-blend-mode:screen}
+    align-items:center;justify-content:flex-start;text-align:center;overflow:hidden;
+    padding:clamp(94px,13vh,150px) 20px 88px}
+  /* photo as a background anchored BY ITS SUN: background-position 50% 47% pins the sun (which sits
+     at 50%/47% of the image) to the same 50%/47% point of the hero at every viewport size, so the
+     animated glow below stays locked onto the real sun instead of drifting. */
+  .hero-bg{position:absolute;inset:0;z-index:0;
+    background:#050505 url(assets/hero.png) 50% 47% / cover no-repeat;
+    animation:heroFade 1.8s ease both}
+  /* dark at the very top (nav + copy sit on the starry sky) and bottom, clear through the horizon */
+  .hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(5,5,5,.86) 0%,rgba(5,5,5,.42) 15%,rgba(5,5,5,.05) 31%,transparent 54%,rgba(5,5,5,.5) 85%,#050505 100%)}
+  /* the animated sun, locked to the photo's real sun at 50%/47%; rays emanate from THIS centre */
+  .sun{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);z-index:1;
+    width:min(42vw,340px);aspect-ratio:1;pointer-events:none;mix-blend-mode:screen}
   .sun-rays{position:absolute;inset:-40%;border-radius:50%;
     background:conic-gradient(from 0deg,
       rgba(242,202,80,0) 0deg, rgba(242,202,80,.16) 8deg, rgba(242,202,80,0) 16deg,
@@ -97,13 +97,17 @@
       rgba(242,202,80,0) 300deg, rgba(242,202,80,.16) 308deg, rgba(242,202,80,0) 316deg,
       rgba(242,202,80,0) 330deg, rgba(242,202,80,.12) 338deg, rgba(242,202,80,0) 346deg,
       rgba(242,202,80,0) 360deg);
-    -webkit-mask:radial-gradient(circle,#000 30%,transparent 62%);
-    mask:radial-gradient(circle,#000 30%,transparent 62%);
-    animation:spin 100s linear infinite}
+    -webkit-mask:radial-gradient(circle,transparent 19%,#000 33%,#000 40%,transparent 66%);
+    mask:radial-gradient(circle,transparent 19%,#000 33%,#000 40%,transparent 66%);
+    animation:spin 90s linear infinite}
   .sun-halo{position:absolute;inset:0;border-radius:50%;
-    background:radial-gradient(circle,rgba(255,214,120,.5) 0%,rgba(242,202,80,.22) 26%,transparent 60%);
+    background:radial-gradient(circle,rgba(255,220,140,.32) 0%,rgba(242,202,80,.16) 30%,transparent 62%);
     animation:sunBreathe 5.5s ease-in-out infinite}
-  .hero-content{position:relative;z-index:2;max-width:920px}
+  .hero-content{position:relative;z-index:2;max-width:900px}
+  /* a soft dark cloud behind the copy so it always reads on the sky, without dimming the sun below */
+  .hero-content::before{content:"";position:absolute;inset:-8% -12% 20% -12%;z-index:-1;
+    background:radial-gradient(ellipse 78% 100% at 50% 38%,rgba(5,5,5,.62),rgba(5,5,5,.2) 55%,transparent 74%);
+    filter:blur(6px)}
   .hero-eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.32em;text-transform:uppercase;
     color:var(--gold);display:inline-flex;align-items:center;gap:10px;margin-bottom:22px;
     text-shadow:0 2px 14px rgba(0,0,0,.9)}
@@ -336,7 +340,7 @@
   .foot-links a:hover{color:var(--gold)}
 
   /* ——— Motion ——— */
-  @keyframes heroSettle{from{transform:scale(1.06)}to{transform:scale(1)}}
+  @keyframes heroFade{from{opacity:0}to{opacity:1}}
   @keyframes sunBreathe{0%,100%{transform:scale(1);opacity:.72}50%{transform:scale(1.08);opacity:.95}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
@@ -351,7 +355,7 @@
   .d1{animation-delay:.1s}.d2{animation-delay:.28s}.d3{animation-delay:.46s}.d4{animation-delay:.66s}
   @media(prefers-reduced-motion:reduce){
     html{scroll-behavior:auto}
-    .hero-photo img,.stagger,.reveal{animation:none;opacity:1;transform:none;transition:none}
+    .hero-bg,.stagger,.reveal{animation:none;opacity:1;transform:none;transition:none}
     .sun-halo,.sun-rays,.chev,.board-head .dot,.phone{animation:none}
     .flap.flip{animation:none}
   }
@@ -374,7 +378,7 @@
 
 <!-- ══════ HERO ══════ -->
 <header class="hero" id="top">
-  <div class="hero-photo"><img src="assets/hero.png" alt="A golden airplane wing over a sunrise horizon, seen from the window seat"/></div>
+  <div class="hero-bg" role="img" aria-label="A golden airplane wing over a sunrise on the horizon, seen from the window seat"></div>
   <div class="hero-scrim"></div>
   <div class="sun" aria-hidden="true">
     <div class="sun-rays"></div>
