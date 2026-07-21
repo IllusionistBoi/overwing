@@ -134,7 +134,7 @@
   .scroll-cue span{font-family:var(--mono);font-size:10px;letter-spacing:.24em}
   .scroll-cue .chev{width:18px;height:18px;animation:bob 1.8s ease-in-out infinite}
 
-  /* ——— Split-flap departures board (faithful to the app's Meet-the-Developer board) ——— */
+  /* ——— Split-flap departures board ——— */
   .board-sec{padding:clamp(48px,8vw,88px) 0}
   .board{background:#0a0a0b;border:1px solid var(--edge);border-radius:16px;overflow:hidden;
     box-shadow:0 30px 80px rgba(0,0,0,.55);cursor:pointer;user-select:none}
@@ -150,28 +150,24 @@
     letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .board-head .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);
     animation:pulse 2s ease-in-out infinite}
-  .board-rows{padding:10px 12px}
-  .frow{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
-    padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.045)}
+  .board-rows{padding:10px 12px;display:grid;gap:2px}
+  .frow{display:grid;grid-template-columns:max-content max-content max-content;column-gap:18px;align-items:center;
+    padding:9px 7px;border-bottom:1px solid rgba(255,255,255,.045)}
   .frow:last-child{border-bottom:0}
-  .ftime,.fdest{display:flex;gap:3px;perspective:240px}
-  .ftime .colon{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-weight:600;font-size:15px;padding:0 1px}
-  .flap{width:19px;height:27px;border-radius:3px;background:linear-gradient(#1c1c1d,#141414);color:var(--cream);
-    font-family:var(--mono);font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;
-    box-shadow:inset 0 -1px 0 rgba(0,0,0,.6);border-top:1px solid rgba(255,255,255,.06);
-    transform-origin:center center;backface-visibility:hidden;will-change:transform}
-  .fstatus{font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:5px 11px;border-radius:5px;
-    white-space:nowrap;transition:color .25s,background .25s}
-  .st-green{color:var(--green);background:rgba(74,222,128,.12)}
-  .st-gold{color:var(--gold);background:rgba(242,202,80,.12)}
-  .st-red{color:var(--red);background:rgba(239,106,92,.12)}
+  .flap-group{display:flex;gap:3px;perspective:240px}
+  .flap{position:relative;width:clamp(13px,4vw,21px);height:clamp(22px,6vw,29px);border-radius:3px;
+    background:linear-gradient(180deg,#1c1c1d 0%,#191919 48%,#131313 52%,#151515 100%);
+    color:var(--flap-color,#f4ede2);font-family:var(--mono);font-weight:600;font-size:clamp(9px,3.3vw,15px);
+    line-height:1;display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.06);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.025),inset 0 -1px 0 rgba(0,0,0,.75),0 1px 1px rgba(0,0,0,.4);
+    text-shadow:0 1px 0 rgba(0,0,0,.6);transform-origin:center center;backface-visibility:hidden;will-change:transform}
+  .flap::after{content:"";position:absolute;z-index:1;left:2px;right:2px;top:50%;height:1px;
+    background:rgba(0,0,0,.76);box-shadow:0 1px 0 rgba(255,255,255,.035);pointer-events:none}
   @media(max-width:560px){
-    .frow{gap:8px}
-    .flap{width:15px;height:22px;font-size:12px}
+    .frow{column-gap:8px;padding-inline:4px}
+    .flap-group{gap:2px}
     .board-hint{display:none}
-    .fstatus{font-size:9.5px;padding:4px 7px}
   }
-
   /* ——— Section scaffold ——— */
   section{position:relative}
   /* recurring brand motif: a thin horizon line that glows gold at its centre, sitting where the
@@ -475,7 +471,7 @@
 <!-- ══════ DEPARTURES BOARD ══════ -->
 <section class="board-sec" id="board">
   <div class="wrap reveal">
-    <div class="board" id="board" role="button" tabindex="0" aria-label="Departures board, tap to flip">
+    <div class="board" id="departuresBoard" role="button" tabindex="0" aria-label="Departures board, tap to flip">
       <div class="board-head">
         <span class="t">Departures</span>
         <span class="right">
@@ -483,11 +479,10 @@
           <span class="live"><span class="dot"></span>Live</span>
         </span>
       </div>
-      <div class="board-rows" id="boardRows"></div>
+      <div class="board-rows" id="boardRows" aria-live="polite"></div>
     </div>
   </div>
 </section>
-
 <div class="wrap"><div class="horizon reveal"></div></div>
 
 <!-- ══════ STORY: TRACKING ══════ -->
@@ -873,106 +868,143 @@
     ["10:15","HAVANA","BOARDING","gold"],["13:40","NAPLES","ON TIME","green"]
   ];
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
-  const ROWS = 5, DEST = 6, NBSP = " ";
+  const ROWS = 5, TIME_CELLS = 5, DEST_CELLS = 6, STATUS_CELLS = 8, BLANK = "\u00a0";
+  const STATUS_COLORS = { green: "#4ade80", red: "#ef6a5c", gold: "#f2ca50" };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const container = document.getElementById("boardRows");
-  const boardEl = document.getElementById("board");
-  const padDest = s => (s + "      ").slice(0, DEST);
+  const boardEl = document.getElementById("departuresBoard");
+  const padRight = (value, length) => (value + " ".repeat(length)).slice(0, length);
+  const padLeft = (value, length) => (" ".repeat(length) + value).slice(-length);
+  const glyph = value => value === " " || value === "" ? BLANK : value;
 
-  // build rows: time (4 flap digits around a fixed colon) + dest (6 flaps) + status pill, all blank
-  const rowEls = [];
-  for (let r = 0; r < ROWS; r++){
-    const row = document.createElement("div"); row.className = "frow";
-    const time = document.createElement("div"); time.className = "ftime"; const tcells = [];
-    for (let i = 0; i < 5; i++){
-      if (i === 2){ const col = document.createElement("span"); col.className = "colon"; col.textContent = ":"; time.appendChild(col); }
-      else { const f = document.createElement("div"); f.className = "flap"; f.textContent = NBSP; time.appendChild(f); tcells.push(f); }
+  function makeGroup(className, count, isStatus){
+    const group = document.createElement("div");
+    group.className = "flap-group " + className;
+    const cells = [];
+    for (let i = 0; i < count; i++){
+      const cell = document.createElement("span");
+      cell.className = "flap" + (isStatus ? " status-flap" : "");
+      cell.textContent = BLANK;
+      group.appendChild(cell);
+      cells.push(cell);
     }
-    const dest = document.createElement("div"); dest.className = "fdest"; const dcells = [];
-    for (let c = 0; c < DEST; c++){ const f = document.createElement("div"); f.className = "flap"; f.textContent = NBSP; dest.appendChild(f); dcells.push(f); }
-    const st = document.createElement("div"); st.className = "fstatus st-gold"; st.textContent = NBSP;
-    row.append(time, dest, st);
-    container.appendChild(row);
-    rowEls.push({ tcells, dcells, st, dest: "" });
+    return { group, cells };
   }
 
-  // Flip ONE cell to its target through decelerating steps, ported 1:1 from the app FlapCell:
-  // 10 steps, per half-flip 22ms to 172ms; rotateX folds away (0 to -90), swaps glyph edge-on, drops in (+90 to 0).
+  // Every part of a row is a cell group: HH:MM (including ':'), six city cells and eight status cells.
+  const rowEls = [];
+  for (let index = 0; index < ROWS; index++){
+    const row = document.createElement("div");
+    row.className = "frow";
+    const time = makeGroup("ftime", TIME_CELLS, false);
+    const destination = makeGroup("fdest", DEST_CELLS, false);
+    const status = makeGroup("fstatus", STATUS_CELLS, true);
+    row.append(time.group, destination.group, status.group);
+    container.appendChild(row);
+    rowEls.push({ el: row, tcells: time.cells, dcells: destination.cells, scells: status.cells, destination: "" });
+  }
+
+  // Port of FlapCell: ten decelerating random steps, each folding out then dropping in.
+  // A version per cell makes a newer row update cancel every pending half-flip from the previous one.
   function flapCell(cell, target, startDelay){
-    const tgt = (target === " " || target === "") ? NBSP : target;
-    if (reduced){ cell.textContent = tgt; return; }
-    const steps = 10; let k = 0;
-    const tick = () => {
-      if (k >= steps){ cell.style.transition = "none"; cell.style.transform = "rotateX(0deg)"; cell.textContent = tgt; return; }
-      const half = Math.round(22 + Math.pow(k / (steps - 1), 2) * 150);
+    const finalGlyph = glyph(target);
+    const version = (cell._flapVersion || 0) + 1;
+    cell._flapVersion = version;
+    cell.style.transition = "none";
+    cell.style.transform = "rotateX(0deg)";
+    const active = () => cell._flapVersion === version;
+    if (reduced){ cell.textContent = finalGlyph; return; }
+
+    const step = k => {
+      if (!active()) return;
+      if (k >= 10){
+        cell.style.transition = "none";
+        cell.style.transform = "rotateX(0deg)";
+        cell.textContent = finalGlyph;
+        return;
+      }
+      const half = Math.round(22 + Math.pow(k / 9, 2) * 150);
       cell.style.transition = "transform " + half + "ms linear";
       cell.style.transform = "rotateX(-90deg)";
-      setTimeout(() => {
-        cell.textContent = (k === steps - 1) ? tgt : CHARS[(Math.random() * CHARS.length) | 0];
+      window.setTimeout(() => {
+        if (!active()) return;
+        cell.textContent = k === 9 ? finalGlyph : glyph(CHARS[(Math.random() * CHARS.length) | 0]);
         cell.style.transition = "none";
         cell.style.transform = "rotateX(90deg)";
         void cell.offsetWidth;
         cell.style.transition = "transform " + half + "ms cubic-bezier(.2,.75,.3,1)";
         cell.style.transform = "rotateX(0deg)";
-        k++;
-        setTimeout(tick, half);
+        window.setTimeout(() => step(k + 1), half);
       }, half);
     };
-    setTimeout(tick, startDelay);
+    window.setTimeout(() => step(0), startDelay);
   }
 
-  // Flip a whole row to a departure: cells cascade left to right (x45ms); rows can stagger via extraDelay.
-  function flapRow(idx, dep, extraDelay){
-    const ro = rowEls[idx]; ro.dest = dep[1];
+  function flapGroup(cells, characters, base){
+    cells.forEach((cell, index) => flapCell(cell, characters[index], base + index * 45));
+  }
+
+  function flapRow(index, departure, extraDelay){
+    const row = rowEls[index];
+    const [time, destination, status, colorKey] = departure;
     const base = extraDelay || 0;
-    const t = dep[0].replace(":", "");
-    ro.tcells.forEach((c, i) => flapCell(c, t[i], base + i * 45));
-    padDest(dep[1]).split("").forEach((ch, i) => flapCell(ro.dcells[i], ch, base + (2 + i) * 45));
-    setTimeout(() => { ro.st.textContent = dep[2]; ro.st.className = "fstatus st-" + dep[3]; }, reduced ? 0 : base + 260);
+    row.destination = destination;
+    row.el.setAttribute("aria-label", time + " " + destination + " " + status);
+    row.scells.forEach(cell => cell.style.setProperty("--flap-color", STATUS_COLORS[colorKey]));
+    flapGroup(row.tcells, time, base);
+    flapGroup(row.dcells, padRight(destination, DEST_CELLS), base);
+    flapGroup(row.scells, padLeft(status, STATUS_CELLS), base);
   }
 
-  // The app's flap.mp3, played on TAP only (a user gesture, so autoplay policy allows it).
   let flapAudio = null;
   function playFlap(){
     try {
       if (!flapAudio){ flapAudio = new Audio("assets/flap.mp3"); flapAudio.volume = 0.5; }
-      flapAudio.currentTime = 0; flapAudio.play().catch(() => {});
-    } catch(e) {}
+      flapAudio.currentTime = 0;
+      flapAudio.play().catch(() => {});
+    } catch (error) {}
   }
 
-  // Pick n departures not already on the board (no duplicate destinations).
-  function nextDeps(n){
-    const out = [], used = new Set(rowEls.map(r => r.dest)); let guard = 0;
-    while (out.length < n && guard < 200){
-      const d = DEPS[(Math.random() * DEPS.length) | 0];
-      if (!used.has(d[1]) && !out.find(o => o[1] === d[1])){ out.push(d); used.add(d[1]); }
-      guard++;
+  function nextDeps(count){
+    const result = [];
+    const used = new Set(rowEls.map(row => row.destination));
+    let attempts = 0;
+    while (result.length < count && attempts++ < 200){
+      const departure = DEPS[(Math.random() * DEPS.length) | 0];
+      if (!used.has(departure[1]) && !result.some(item => item[1] === departure[1])){
+        result.push(departure);
+        used.add(departure[1]);
+      }
     }
-    return out;
+    return result;
   }
 
-  // Boot: rows power up one at a time (600ms apart), each flap-settling from blank (exactly like the app).
+  // The app's signature power-up: all blank, then one row starts every 600ms from top to bottom.
   const boot = nextDeps(ROWS);
-  if (reduced){ boot.forEach((d, i) => flapRow(i, d, 0)); }
-  else { boot.forEach((d, i) => setTimeout(() => flapRow(i, d), i * 600)); }
+  if (reduced) boot.forEach((departure, index) => flapRow(index, departure, 0));
+  else boot.forEach((departure, index) => window.setTimeout(() => flapRow(index, departure, 0), index * 600));
 
-  // Live: after the board has booted, flip one random row to a fresh departure every 6s.
+  // Once booted, keep one row live every six seconds without repeating a destination on the board.
   if (!reduced){
-    setTimeout(() => {
-      setInterval(() => {
-        const idx = (Math.random() * ROWS) | 0;
-        const d = nextDeps(1)[0]; if (d) flapRow(idx, d);
+    window.setTimeout(() => {
+      window.setInterval(() => {
+        const index = (Math.random() * ROWS) | 0;
+        const departure = nextDeps(1)[0];
+        if (departure) flapRow(index, departure, 0);
       }, 6000);
     }, ROWS * 600 + 1400);
   }
 
-  // Tap: re-spin every row (rows staggered top to bottom) + the flap sound, the app's tap-to-flip.
-  function respin(){ playFlap(); nextDeps(ROWS).forEach((d, i) => flapRow(i, d, i * 90)); }
+  function respin(){
+    playFlap();
+    nextDeps(ROWS).forEach((departure, index) => flapRow(index, departure, index * 90));
+  }
   if (boardEl && !reduced){
     boardEl.addEventListener("click", respin);
-    boardEl.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); respin(); } });
+    boardEl.addEventListener("keydown", event => {
+      if (event.key === "Enter" || event.key === " ") { event.preventDefault(); respin(); }
+    });
   }
-
   // ——— Journal-book Lottie (real app asset) ———
   (function(){
     const el = document.getElementById("journalBook");
