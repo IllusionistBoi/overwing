@@ -134,36 +134,41 @@
   .scroll-cue span{font-family:var(--mono);font-size:10px;letter-spacing:.24em}
   .scroll-cue .chev{width:18px;height:18px;animation:bob 1.8s ease-in-out infinite}
 
-  /* ——— Split-flap departures board ——— */
+  /* ——— Split-flap departures board (faithful to the app's Meet-the-Developer board) ——— */
   .board-sec{padding:clamp(48px,8vw,88px) 0}
   .board{background:#0a0a0b;border:1px solid var(--edge);border-radius:16px;overflow:hidden;
-    box-shadow:0 30px 80px rgba(0,0,0,.55)}
-  .board-head{display:flex;align-items:center;justify-content:space-between;
-    padding:16px 20px;border-bottom:1px solid var(--edge);background:#0c0c0e}
+    box-shadow:0 30px 80px rgba(0,0,0,.55);cursor:pointer;user-select:none}
+  .board-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:15px 18px;border-bottom:1px solid var(--edge);background:#0c0c0e}
   .board-head .t{font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+  .board-head .right{display:flex;align-items:center;gap:12px}
+  .board-hint{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--gold);background:rgba(242,202,80,.1);
+    border:1px solid rgba(242,202,80,.2);border-radius:999px;padding:4px 9px}
+  .board-hint svg{width:12px;height:12px;animation:tap 2.2s ease-in-out infinite}
   .board-head .live{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:11px;
     letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .board-head .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);
     animation:pulse 2s ease-in-out infinite}
   .board-rows{padding:10px 12px}
-  .frow{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;
+  .frow{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;
     padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.045)}
   .frow:last-child{border-bottom:0}
-  .frow .ftime{font-family:var(--mono);font-size:15px;color:var(--cream);letter-spacing:.04em}
-  .fdest{display:flex;gap:3px}
-  .flap{width:19px;height:27px;border-radius:3px;background:#161616;color:var(--cream);
+  .ftime,.fdest{display:flex;gap:3px;perspective:240px}
+  .ftime .colon{display:flex;align-items:center;color:var(--muted);font-family:var(--mono);font-weight:600;font-size:15px;padding:0 1px}
+  .flap{width:19px;height:27px;border-radius:3px;background:linear-gradient(#1c1c1d,#141414);color:var(--cream);
     font-family:var(--mono);font-weight:600;font-size:15px;display:flex;align-items:center;justify-content:center;
-    position:relative;box-shadow:inset 0 -1px 0 rgba(0,0,0,.6);
-    border-top:1px solid rgba(255,255,255,.05)}
-  .flap.flip{animation:flap .13s ease-in}
+    box-shadow:inset 0 -1px 0 rgba(0,0,0,.6);border-top:1px solid rgba(255,255,255,.06);
+    transform-origin:center center;backface-visibility:hidden;will-change:transform}
   .fstatus{font-family:var(--mono);font-size:11px;letter-spacing:.12em;padding:5px 11px;border-radius:5px;
-    white-space:nowrap}
+    white-space:nowrap;transition:color .25s,background .25s}
   .st-green{color:var(--green);background:rgba(74,222,128,.12)}
   .st-gold{color:var(--gold);background:rgba(242,202,80,.12)}
   .st-red{color:var(--red);background:rgba(239,106,92,.12)}
   @media(max-width:560px){
-    .frow{grid-template-columns:52px 1fr auto;gap:8px}
+    .frow{gap:8px}
     .flap{width:15px;height:22px;font-size:12px}
+    .board-hint{display:none}
     .fstatus{font-size:9.5px;padding:4px 7px}
   }
 
@@ -229,21 +234,49 @@
   .jlabel.on{background:rgba(242,202,80,.2)}
   /* journal-book Lottie (real app asset) recoloured to warm gold on obsidian: invert flips the
      white art bg to black (blends into the page) and lifts the line-art, the warm filter tints it. */
-  /* memories drifting out of the journal book — real Wrapped + share cards float above the Lottie */
-  .memory-stack{position:relative;width:min(340px,100%);height:330px;margin:0 auto}
-  .journal-lottie{position:absolute;left:50%;bottom:-10px;transform:translateX(-50%);
-    width:210px;aspect-ratio:1/1;
+  /* journal book (real app Lottie), recoloured warm-gold on obsidian. Landmark polaroids drift above
+     it via .mem-card (populated once that asset lands). */
+  .memory-stack{position:relative;width:min(330px,100%);margin:0 auto;min-height:250px;
+    display:flex;align-items:flex-end;justify-content:center}
+  .journal-lottie{width:236px;aspect-ratio:1/1;
     filter:invert(1) sepia(.5) saturate(2.6) hue-rotate(2deg) brightness(1.08)}
-  .mem-card{position:absolute;border-radius:12px;overflow:hidden;
-    box-shadow:0 22px 46px rgba(0,0,0,.6);animation:floatCard 6.5s ease-in-out infinite}
+  .mem-card{position:absolute;border-radius:8px;overflow:hidden;
+    box-shadow:0 20px 44px rgba(0,0,0,.6);animation:floatCard 6.5s ease-in-out infinite}
   .mem-card img{display:block;width:100%}
-  .mem-card.wrapped{--rot:-7deg;width:118px;left:4%;top:0;border:1px solid rgba(255,255,255,.12);
-    transform:rotate(-7deg)}
-  .mem-card.share{--rot:5deg;width:212px;right:0;top:34%;background:#100f0b;padding:9px;
-    border:1px solid rgba(242,202,80,.2);transform:rotate(5deg);animation-delay:-2.4s}
-  .mem-card.share img{border-radius:5px}
-  @keyframes floatCard{0%,100%{transform:translateY(0) rotate(var(--rot))}
-    50%{transform:translateY(-11px) rotate(var(--rot))}}
+  @keyframes floatCard{0%,100%{transform:translateY(0) rotate(var(--rot,0deg))}
+    50%{transform:translateY(-11px) rotate(var(--rot,0deg))}}
+
+  /* ——— Share: a real transparent flight sticker over an Instagram Story (Strava-style) ——— */
+  .share-sec{padding:clamp(48px,8vw,90px) 0}
+  .share-grid{display:grid;gap:40px;justify-items:center;align-items:center;grid-template-columns:1fr}
+  @media(min-width:760px){.share-grid{grid-template-columns:auto auto;gap:60px}}
+  .ig-story{position:relative}
+  .ig-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ig-scrim{position:absolute;inset:0;z-index:1;
+    background:linear-gradient(180deg,rgba(0,0,0,.4),transparent 20%,transparent 74%,rgba(0,0,0,.5))}
+  .ig-top{position:absolute;top:0;left:0;right:0;padding:9px 11px 0;z-index:3}
+  .ig-bars{display:flex;gap:4px;margin-bottom:9px}
+  .ig-bars i{flex:1;height:2.5px;border-radius:2px;background:rgba(255,255,255,.35)}
+  .ig-bars i.on{background:#fff}
+  .ig-user{display:flex;align-items:center;gap:8px;color:#fff}
+  .ig-av{width:26px;height:26px;border-radius:50%;flex:0 0 auto;border:2px solid #fff;
+    background:linear-gradient(135deg,#f2ca50,#b8562e)}
+  .ig-user b{font-size:12px;font-weight:600}
+  .ig-user .ig-time{font-size:11px;color:rgba(255,255,255,.7)}
+  .ig-user .ig-x{margin-left:auto;font-size:17px;color:#fff;line-height:1}
+  .ig-sticker{position:absolute;left:50%;top:49%;transform:translate(-50%,-50%) rotate(-4deg);
+    width:90%;z-index:2;filter:drop-shadow(0 8px 22px rgba(0,0,0,.45))}
+  .ig-bottom{position:absolute;bottom:12px;left:11px;right:11px;display:flex;align-items:center;gap:10px;z-index:3}
+  .ig-reply{flex:1;border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:9px 15px;
+    color:rgba(255,255,255,.85);font-size:11px}
+  .ig-bottom svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:1.9}
+  .share-alt{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:280px;text-align:center}
+  .wrapped-card{width:186px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
+    box-shadow:0 22px 50px rgba(0,0,0,.55)}
+  .share-alt p{color:var(--muted);font-size:14.5px;margin:0}
+  .share-formats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .share-formats span{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--gold);
+    background:rgba(242,202,80,.1);border:1px solid rgba(242,202,80,.22);border-radius:999px;padding:4px 10px}
 
   /* ——— Globe (ported from the app's Passport flight map) ——— */
   .globe-sec{padding:clamp(24px,5vw,56px) 0 clamp(48px,8vw,90px);text-align:center;overflow:hidden}
@@ -379,6 +412,7 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
   @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+  @keyframes tap{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px) scale(.92)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
   @keyframes flap{0%{transform:rotateX(0);filter:brightness(1)}50%{transform:rotateX(-90deg);filter:brightness(.5)}100%{transform:rotateX(0);filter:brightness(1)}}
   .reveal{opacity:0;transform:translateY(28px);
@@ -441,10 +475,13 @@
 <!-- ══════ DEPARTURES BOARD ══════ -->
 <section class="board-sec" id="board">
   <div class="wrap reveal">
-    <div class="board">
+    <div class="board" id="board" role="button" tabindex="0" aria-label="Departures board, tap to flip">
       <div class="board-head">
         <span class="t">Departures</span>
-        <span class="live"><span class="dot"></span>Live</span>
+        <span class="right">
+          <span class="board-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11V6a2 2 0 0 1 4 0v5"/><path d="M13 11V4a2 2 0 0 1 4 0v7"/><path d="M17 11V7a2 2 0 0 1 4 0v9a5 5 0 0 1-5 5h-3a5 5 0 0 1-4-2l-4-5a2 2 0 0 1 3-2l2 2"/></svg>Tap to flip</span>
+          <span class="live"><span class="dot"></span>Live</span>
+        </span>
       </div>
       <div class="board-rows" id="boardRows"></div>
     </div>
@@ -519,9 +556,7 @@
     December, Wrapped turns your year in the air into a story worth sharing.</p>
   </div>
   <div class="s-visual">
-    <div class="memory-stack">
-      <div class="mem-card wrapped"><img src="assets/card-wrapped.jpg" alt="Overwing Wrapped: your year in review"/></div>
-      <div class="mem-card share"><img src="assets/card-share.png" alt="A shareable flight card, JFK to LHR"/></div>
+    <div class="memory-stack" id="memoryStack">
       <div class="journal-lottie" id="journalBook" aria-hidden="true"></div>
     </div>
     <div class="jlabels">
@@ -642,15 +677,59 @@
     <div class="phone-row reveal">
       <div>
         <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-flights.jpg" alt="Overwing Flights screen: a live flight and past flights"/></div></div>
-        <p class="caption">Flights</p>
+        <p class="caption">Live &amp; past flights</p>
       </div>
       <div>
-        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-detail.jpg" alt="Overwing live flight detail: milestones and aircraft telemetry"/></div></div>
-        <p class="caption">In flight</p>
+        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-detail.jpg" alt="Overwing flight detail with the milestone timeline"/></div></div>
+        <p class="caption">Every milestone</p>
       </div>
       <div>
-        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-passport.jpg" alt="Overwing Passport: distance, tier and carbon stats"/></div></div>
-        <p class="caption">Passport</p>
+        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-passport.jpg" alt="Overwing Passport: distance, Gold tier and carbon stats"/></div></div>
+        <p class="caption">Your passport</p>
+      </div>
+      <div>
+        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-collection.jpg" alt="Overwing airport stamps, heatmap and aircraft collection"/></div></div>
+        <p class="caption">Stamps &amp; aircraft</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><div class="horizon reveal"></div></div>
+
+<!-- ══════ SHARE (Strava-style sticker over an IG story) ══════ -->
+<section class="share-sec reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Show it off</span>
+      <h2>Share the whole trip.</h2>
+      <p>Drop a transparent flight sticker straight onto your story, or post a full year-in-review card.
+      Your route, your flex.</p>
+    </div>
+    <div class="share-grid">
+      <div class="ig-story">
+        <div class="phone"><div class="phone-screen">
+          <img class="ig-bg" src="assets/story-photo.jpg" alt="A window-seat view of the wing"/>
+          <div class="ig-scrim"></div>
+          <div class="ig-top">
+            <div class="ig-bars"><i class="on"></i><i></i><i></i></div>
+            <div class="ig-user"><span class="ig-av"></span><b>you</b><span class="ig-time">2h</span><span class="ig-x">&times;</span></div>
+          </div>
+          <img class="ig-sticker" src="assets/card-share.png" alt="Transparent flight sticker: JFK to LHR"/>
+          <div class="ig-bottom">
+            <div class="ig-reply">Send message</div>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.4-9.5-8.5C.9 9.8 2.2 6.5 5.3 6.1 7 5.9 8.6 6.8 12 10c3.4-3.2 5-4.1 6.7-3.9 3.1.4 4.4 3.7 2.8 6.4C19 16.6 12 21 12 21z"/></svg>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </div>
+        </div></div>
+        <p class="caption">Your story, your sticker</p>
+      </div>
+      <div class="share-alt">
+        <img class="wrapped-card" src="assets/card-wrapped.jpg" alt="Overwing Wrapped: year in review card"/>
+        <p>A full recap card, or a transparent sticker with just the codes. Four formats, all backgroundless where it counts.</p>
+        <div class="share-formats">
+          <span>Card</span><span>Story</span><span>Strip</span><span>Sticker</span>
+        </div>
       </div>
     </div>
   </div>
@@ -793,68 +872,105 @@
     ["14:45","ZURICH","ON TIME","green"],["23:05","MANILA","BOARDING","gold"],
     ["10:15","HAVANA","BOARDING","gold"],["13:40","NAPLES","ON TIME","green"]
   ];
-  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
-  const ROWS = 5, CELLS = 7;
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
+  const ROWS = 5, DEST = 6, NBSP = " ";
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const container = document.getElementById("boardRows");
+  const boardEl = document.getElementById("board");
+  const padDest = s => (s + "      ").slice(0, DEST);
 
-  function pad(s){ return (s + "       ").slice(0, CELLS); }
-
-  // build rows
+  // build rows: time (4 flap digits around a fixed colon) + dest (6 flaps) + status pill, all blank
   const rowEls = [];
   for (let r = 0; r < ROWS; r++){
-    const dep = DEPS[r];
-    const row = document.createElement("div");
-    row.className = "frow";
-    const time = document.createElement("div"); time.className = "ftime"; time.textContent = dep[0];
-    const dest = document.createElement("div"); dest.className = "fdest";
-    const cells = [];
-    const padded = pad(dep[1]);
-    for (let c = 0; c < CELLS; c++){
-      const cell = document.createElement("div"); cell.className = "flap";
-      cell.textContent = padded[c] === " " ? " " : padded[c];
-      dest.appendChild(cell); cells.push(cell);
+    const row = document.createElement("div"); row.className = "frow";
+    const time = document.createElement("div"); time.className = "ftime"; const tcells = [];
+    for (let i = 0; i < 5; i++){
+      if (i === 2){ const col = document.createElement("span"); col.className = "colon"; col.textContent = ":"; time.appendChild(col); }
+      else { const f = document.createElement("div"); f.className = "flap"; f.textContent = NBSP; time.appendChild(f); tcells.push(f); }
     }
-    const st = document.createElement("div"); st.className = "fstatus st-" + dep[3]; st.textContent = dep[2];
+    const dest = document.createElement("div"); dest.className = "fdest"; const dcells = [];
+    for (let c = 0; c < DEST; c++){ const f = document.createElement("div"); f.className = "flap"; f.textContent = NBSP; dest.appendChild(f); dcells.push(f); }
+    const st = document.createElement("div"); st.className = "fstatus st-gold"; st.textContent = NBSP;
     row.append(time, dest, st);
     container.appendChild(row);
-    rowEls.push({ time, cells, st, dest: dep[1] });
+    rowEls.push({ tcells, dcells, st, dest: "" });
   }
 
-  function setRow(idx, dep){
-    const ro = rowEls[idx];
-    ro.time.textContent = dep[0];
-    ro.st.textContent = dep[2];
-    ro.st.className = "fstatus st-" + dep[3];
-    ro.dest = dep[1];
-    const target = pad(dep[1]);
-    ro.cells.forEach((cell, c) => {
-      if (reduced){ cell.textContent = target[c] === " " ? " " : target[c]; return; }
-      // quick scramble-settle per character, staggered left→right
-      let ticks = 4 + c;
-      const iv = setInterval(() => {
-        cell.classList.add("flip");
-        setTimeout(() => cell.classList.remove("flip"), 120);
-        ticks--;
-        if (ticks <= 0){
-          clearInterval(iv);
-          cell.textContent = target[c] === " " ? " " : target[c];
-        } else {
-          cell.textContent = CHARS[Math.floor(Math.random()*CHARS.length)];
-        }
-      }, 90);
-    });
+  // Flip ONE cell to its target through decelerating steps, ported 1:1 from the app FlapCell:
+  // 10 steps, per half-flip 22ms to 172ms; rotateX folds away (0 to -90), swaps glyph edge-on, drops in (+90 to 0).
+  function flapCell(cell, target, startDelay){
+    const tgt = (target === " " || target === "") ? NBSP : target;
+    if (reduced){ cell.textContent = tgt; return; }
+    const steps = 10; let k = 0;
+    const tick = () => {
+      if (k >= steps){ cell.style.transition = "none"; cell.style.transform = "rotateX(0deg)"; cell.textContent = tgt; return; }
+      const half = Math.round(22 + Math.pow(k / (steps - 1), 2) * 150);
+      cell.style.transition = "transform " + half + "ms linear";
+      cell.style.transform = "rotateX(-90deg)";
+      setTimeout(() => {
+        cell.textContent = (k === steps - 1) ? tgt : CHARS[(Math.random() * CHARS.length) | 0];
+        cell.style.transition = "none";
+        cell.style.transform = "rotateX(90deg)";
+        void cell.offsetWidth;
+        cell.style.transition = "transform " + half + "ms cubic-bezier(.2,.75,.3,1)";
+        cell.style.transform = "rotateX(0deg)";
+        k++;
+        setTimeout(tick, half);
+      }, half);
+    };
+    setTimeout(tick, startDelay);
   }
 
+  // Flip a whole row to a departure: cells cascade left to right (x45ms); rows can stagger via extraDelay.
+  function flapRow(idx, dep, extraDelay){
+    const ro = rowEls[idx]; ro.dest = dep[1];
+    const base = extraDelay || 0;
+    const t = dep[0].replace(":", "");
+    ro.tcells.forEach((c, i) => flapCell(c, t[i], base + i * 45));
+    padDest(dep[1]).split("").forEach((ch, i) => flapCell(ro.dcells[i], ch, base + (2 + i) * 45));
+    setTimeout(() => { ro.st.textContent = dep[2]; ro.st.className = "fstatus st-" + dep[3]; }, reduced ? 0 : base + 260);
+  }
+
+  // The app's flap.mp3, played on TAP only (a user gesture, so autoplay policy allows it).
+  let flapAudio = null;
+  function playFlap(){
+    try {
+      if (!flapAudio){ flapAudio = new Audio("assets/flap.mp3"); flapAudio.volume = 0.5; }
+      flapAudio.currentTime = 0; flapAudio.play().catch(() => {});
+    } catch(e) {}
+  }
+
+  // Pick n departures not already on the board (no duplicate destinations).
+  function nextDeps(n){
+    const out = [], used = new Set(rowEls.map(r => r.dest)); let guard = 0;
+    while (out.length < n && guard < 200){
+      const d = DEPS[(Math.random() * DEPS.length) | 0];
+      if (!used.has(d[1]) && !out.find(o => o[1] === d[1])){ out.push(d); used.add(d[1]); }
+      guard++;
+    }
+    return out;
+  }
+
+  // Boot: rows power up one at a time (600ms apart), each flap-settling from blank (exactly like the app).
+  const boot = nextDeps(ROWS);
+  if (reduced){ boot.forEach((d, i) => flapRow(i, d, 0)); }
+  else { boot.forEach((d, i) => setTimeout(() => flapRow(i, d), i * 600)); }
+
+  // Live: after the board has booted, flip one random row to a fresh departure every 6s.
   if (!reduced){
-    let cursor = ROWS;
-    setInterval(() => {
-      const used = rowEls.map(r => r.dest);
-      const idx = Math.floor(Math.random() * ROWS);
-      let dep;
-      do { dep = DEPS[cursor % DEPS.length]; cursor++; } while (used.includes(dep[1]));
-      setRow(idx, dep);
-    }, 2600);
+    setTimeout(() => {
+      setInterval(() => {
+        const idx = (Math.random() * ROWS) | 0;
+        const d = nextDeps(1)[0]; if (d) flapRow(idx, d);
+      }, 6000);
+    }, ROWS * 600 + 1400);
+  }
+
+  // Tap: re-spin every row (rows staggered top to bottom) + the flap sound, the app's tap-to-flip.
+  function respin(){ playFlap(); nextDeps(ROWS).forEach((d, i) => flapRow(i, d, i * 90)); }
+  if (boardEl && !reduced){
+    boardEl.addEventListener("click", respin);
+    boardEl.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " "){ e.preventDefault(); respin(); } });
   }
 
   // ——— Journal-book Lottie (real app asset) ———
