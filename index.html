@@ -227,6 +227,25 @@
   .jlabel{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--gold);
     background:rgba(242,202,80,.12);border:1px solid rgba(242,202,80,.24);border-radius:999px;padding:5px 12px}
   .jlabel.on{background:rgba(242,202,80,.2)}
+  /* journal-book Lottie (real app asset) recoloured to warm gold on obsidian: invert flips the
+     white art bg to black (blends into the page) and lifts the line-art, the warm filter tints it. */
+  .journal-lottie{width:min(300px,84%);aspect-ratio:1/1;margin:-6px auto -10px;
+    filter:invert(1) sepia(.5) saturate(2.6) hue-rotate(2deg) brightness(1.08)}
+
+  /* ——— Globe (ported from the app's Passport flight map) ——— */
+  .globe-sec{padding:clamp(24px,5vw,56px) 0 clamp(48px,8vw,90px);text-align:center;overflow:hidden}
+  .globe-stage{position:relative;width:100%;max-width:720px;margin:6px auto 0;aspect-ratio:1/1;
+    max-height:min(72vh,680px)}
+  .globe-stage::before{content:"";position:absolute;left:50%;top:50%;width:86%;height:86%;
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle,rgba(77,124,255,.16),rgba(77,124,255,.05) 55%,transparent 72%)}
+  #globe{position:absolute;inset:0;z-index:1;pointer-events:none}
+  .globe-stage.loading::after{content:"Loading the world…";position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-50%);font-family:var(--mono);font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted)}
+  .globe-routes{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+  .groute{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--gold);
+    background:rgba(242,202,80,.1);border:1px solid rgba(242,202,80,.22);border-radius:999px;padding:5px 12px}
 
   /* ——— Everything grid ——— */
   .allfeat{padding:clamp(48px,8vw,90px) 0}
@@ -485,10 +504,7 @@
     December, Wrapped turns your year in the air into a story worth sharing.</p>
   </div>
   <div class="s-visual">
-    <div class="polas">
-      <div class="pola" style="--tilt:-5deg"><div class="ph ph1"></div><span>Santorini, June</span></div>
-      <div class="pola" style="--tilt:4deg"><div class="ph ph2"></div><span>Window seat, 11A</span></div>
-    </div>
+    <div class="journal-lottie" id="journalBook" aria-hidden="true"></div>
     <div class="jlabels">
       <span class="jlabel on">Vacation</span>
       <span class="jlabel">Business</span>
@@ -497,6 +513,28 @@
   </div>
 </section>
 </div>
+
+<div class="wrap"><div class="horizon reveal"></div></div>
+
+<!-- ══════ GLOBE (real app flight map) ══════ -->
+<section class="globe-sec reveal" id="map">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Your flight map</span>
+      <h2>Every journey, on one globe.</h2>
+      <p>The same living world map that lives inside your passport, your routes traced in gold.</p>
+    </div>
+    <div class="globe-stage loading"><div id="globe"></div></div>
+    <div class="globe-routes">
+      <span class="groute">DUB → JFK</span>
+      <span class="groute">LHR → HND</span>
+      <span class="groute">AUH → BOM</span>
+      <span class="groute">SFO → NRT</span>
+      <span class="groute">LAX → SYD</span>
+      <span class="groute">GRU → LIS</span>
+    </div>
+  </div>
+</section>
 
 <div class="wrap"><div class="horizon reveal"></div></div>
 
@@ -772,6 +810,7 @@
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 <script>
   // ——— Reveal on scroll ———
   const io = new IntersectionObserver((es) => {
@@ -854,6 +893,86 @@
       do { dep = DEPS[cursor % DEPS.length]; cursor++; } while (used.includes(dep[1]));
       setRow(idx, dep);
     }, 2600);
+  }
+
+  // ——— Journal-book Lottie (real app asset) ———
+  (function(){
+    const el = document.getElementById("journalBook");
+    if (el && window.lottie){
+      const anim = lottie.loadAnimation({
+        container: el, renderer: "svg", loop: !reduced, autoplay: !reduced,
+        path: "assets/journal_book.json",
+      });
+      if (reduced) anim.addEventListener("DOMLoaded", () => anim.goToAndStop(0, true));
+    }
+  })();
+
+  // ——— Globe (ported from the app's Passport flight map) ———
+  // Real routes → lat/lng. Arcs draw in gold, the earth auto-rotates. The 1.7MB globe library
+  // + texture only load once the section nears the viewport, so the top of the page stays light.
+  const ROUTES = [
+    {a:[53.43,-6.27],  b:[40.64,-73.78]},  // DUB → JFK
+    {a:[51.47,-0.45],  b:[35.55,139.78]},  // LHR → HND
+    {a:[24.43,54.65],  b:[19.09,72.87]},   // AUH → BOM
+    {a:[37.62,-122.38],b:[35.76,140.39]},  // SFO → NRT
+    {a:[33.94,-118.41],b:[-33.95,151.18]}, // LAX → SYD
+    {a:[-23.43,-46.47],b:[38.77,-9.13]},   // GRU → LIS
+    {a:[51.47,-0.45],  b:[40.64,-73.78]},  // LHR → JFK
+    {a:[25.25,55.36],  b:[-33.94,18.60]},  // DXB → CPT
+  ];
+  const stage = document.querySelector(".globe-stage");
+  const globeEl = document.getElementById("globe");
+  if (stage && globeEl){
+    let started = false;
+    // Defer the 1.7MB library + texture off the initial load: fire on the first scroll (the common
+    // case) OR after a short fallback delay, whichever comes first. No reliance on IntersectionObserver.
+    function go(){
+      if (started) return;
+      started = true;
+      window.removeEventListener("scroll", go);
+      loadGlobe();
+    }
+    window.addEventListener("scroll", go, { passive: true, once: true });
+    setTimeout(go, 3500);
+
+    function loadGlobe(){
+      const s = document.createElement("script");
+      s.src = "assets/globe.gl.min.js";
+      s.onload = initGlobe;
+      s.onerror = () => stage.classList.remove("loading");
+      document.body.appendChild(s);
+    }
+    function initGlobe(){
+      if (typeof Globe !== "function"){ stage.classList.remove("loading"); return; }
+      const arcs = ROUTES.map(r => ({ depLat:r.a[0], depLon:r.a[1], arrLat:r.b[0], arrLon:r.b[1] }));
+      const pts = [];
+      arcs.forEach(a => { pts.push({lat:a.depLat,lng:a.depLon},{lat:a.arrLat,lng:a.arrLon}); });
+      const g = Globe()
+        .globeImageUrl("assets/earth_night.jpg")
+        .backgroundColor("rgba(0,0,0,0)")
+        .showAtmosphere(true).atmosphereColor("#4d7cff").atmosphereAltitude(0.16)
+        .arcColor(() => ["rgba(255,140,50,0.55)","rgba(255,205,90,1)"])
+        .arcStroke(0.85).arcAltitudeAutoScale(0.34)
+        .arcDashLength(0.5).arcDashGap(0.14).arcDashAnimateTime(reduced ? 0 : 2000)
+        .arcsData(arcs)
+        .arcStartLat(d=>d.depLat).arcStartLng(d=>d.depLon).arcEndLat(d=>d.arrLat).arcEndLng(d=>d.arrLon)
+        .pointsData(pts).pointColor(()=>"#FFB347").pointAltitude(0.008).pointRadius(0.42).pointResolution(8)
+        (globeEl);
+      const c = g.controls();
+      c.autoRotate = !reduced; c.autoRotateSpeed = 0.5;
+      c.enableZoom = false; c.enablePan = false;
+      g.pointOfView({ lat: 22, lng: 12, altitude: 2.3 }, 0);
+      // Size to the stage (not the window). Retry a few times since layout/texture can lag.
+      const size = () => {
+        const w = stage.clientWidth || globeEl.clientWidth;
+        const h = stage.clientHeight || globeEl.clientHeight;
+        if (w > 0 && h > 0){ g.width(w); g.height(h); }
+      };
+      size();
+      stage.classList.remove("loading");
+      [120, 400, 1200].forEach(t => setTimeout(size, t));
+      window.addEventListener("resize", size);
+    }
   }
 </script>
 </body>
