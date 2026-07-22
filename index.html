@@ -407,7 +407,8 @@
 <!-- ══════ NAV ══════ -->
 <nav class="top">
   <div class="wrap inner">
-    <a class="brand" href="#top"><img src="assets/mark.png" alt=""/>Over<b>wing</b></a>
+    <!-- the wordmark must be ONE flex item: as bare text + <b>, the flex gap split "Over wing" -->
+    <a class="brand" href="#top"><img src="assets/mark.png" alt=""/><span>Over<b>wing</b></span></a>
     <div class="nav-links">
       <a href="#features">Features</a>
       <a href="#pricing">Pricing</a>
