@@ -179,6 +179,32 @@
     .flap-group{gap:2px}
     .board-hint{display:none}
   }
+  /* ——— Intro curtain: the greeting sequence from the portfolio / Pixel Pals, Overwing-branded.
+     Timestamp-driven multilingual greetings + a live counter, then the panels split apart to
+     reveal the page. Skipped under reduced motion; bfcache + 9s failsafes in JS. ——— */
+  .intro{position:fixed;inset:0;z-index:300;display:flex;align-items:center;justify-content:center}
+  .intro.gone{display:none}
+  .intro.done{pointer-events:none}
+  .intro-panel{position:absolute;left:0;right:0;background:var(--obsidian);
+    transition:transform 900ms cubic-bezier(.77,0,.175,1)}
+  .ip-top{top:0;height:50.5%}
+  .ip-bottom{bottom:0;height:50%}
+  .intro.done .ip-top{transform:translateY(-101%)}
+  .intro.done .ip-bottom{transform:translateY(101%)}
+  .intro-word{position:relative;z-index:2;font-family:var(--display);font-size:clamp(2.2rem,6vw,4.2rem);
+    font-weight:600;letter-spacing:-.01em;color:var(--cream);
+    transition:transform 450ms cubic-bezier(.23,1,.32,1),opacity 350ms ease,letter-spacing 450ms cubic-bezier(.23,1,.32,1)}
+  .intro-word::before{content:"";display:inline-block;width:.45em;height:.45em;margin-right:.35em;
+    border-radius:50%;background:var(--gold);transform:translateY(-.02em)}
+  .intro-word.intro-final{transform:scale(1.05);letter-spacing:0}
+  .intro.done .intro-word{opacity:0;transform:scale(.96) translateY(-12px)}
+  .intro-count{position:absolute;z-index:2;left:clamp(20px,5vw,40px);bottom:2rem;font-family:var(--mono);
+    font-size:.85rem;font-weight:600;letter-spacing:.08em;color:var(--gold);transition:opacity 300ms ease}
+  .intro.done .intro-count{opacity:0}
+  html.intro-lock{overflow:hidden}
+  /* the hero entrance waits behind the curtain (lock is JS-set, so no-JS pages play normally) */
+  html.intro-lock .stagger{animation-play-state:paused}
+
   /* ——— Section scaffold ——— */
   section{position:relative}
   /* recurring brand motif: a thin horizon line that glows gold at its centre, sitting where the
@@ -403,6 +429,13 @@
 </style>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true">
+  <i class="intro-panel ip-top"></i>
+  <i class="intro-panel ip-bottom"></i>
+  <span class="intro-word" id="intro-word">Hello</span>
+  <span class="intro-count" id="intro-count">00</span>
+</div>
+<noscript><style>.intro{display:none}</style></noscript>
 
 <!-- ══════ NAV ══════ -->
 <nav class="top">
@@ -850,6 +883,75 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
 <script>
+  // ——— Intro curtain: greeting sequence (ported from the portfolio / Pixel Pals) ———
+  // Timestamp-driven so background-tab throttling can't strand it; on wake it snaps to position.
+  (function intro(){
+    const el = document.getElementById("intro");
+    if (!el) return;
+    const html = document.documentElement;
+    const finish = () => { el.classList.add("gone"); html.classList.remove("intro-lock"); };
+    // pages restored from the back/forward cache do not re-run scripts
+    window.addEventListener("pageshow", e => { if (e.persisted) finish(); });
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { finish(); return; }
+    html.classList.add("intro-lock");
+    // seventeen greetings, then the doors open
+    const words = [
+      "Hello", "नमस्ते", "Dia dhuit", "Bonjour", "Hola",
+      "こんにちは", "안녕하세요", "你好",
+      "Ciao", "Olá", "Hallo", "Привет",
+      "مرحبا", "Γειά σου",
+      "Merhaba", "Xin chào", "Hej", "Welcome aboard.",
+    ];
+    const wordEl = document.getElementById("intro-word");
+    const countEl = document.getElementById("intro-count");
+    let i = 0;
+    const CLOSER_HOLD = 1450;
+    const delayFor = idx => {
+      if (idx >= words.length - 1) return CLOSER_HOLD;         // let the closer breathe
+      const mid = words.length / 2, dist = Math.abs(idx - mid) / mid;
+      return 110 + dist * dist * 120;                          // 110ms center, ~230ms edges
+    };
+    const bounds = []; let total = 460;
+    for (let k = 1; k < words.length; k++){ bounds.push(total); total += delayFor(k); }
+    const countSpan = total - CLOSER_HOLD;                     // counter hits 100 as the closer lands
+    const t0 = performance.now();
+    const swap = (text, final) => {
+      wordEl.textContent = text;
+      if (!wordEl.animate) return;
+      wordEl.animate(final
+        ? [{opacity:0,transform:"translateY(18px) scale(0.95)",filter:"blur(8px)"},
+           {opacity:1,transform:"translateY(0) scale(1)",filter:"blur(0)"}]
+        : [{opacity:.2,transform:"translateY(10px)",filter:"blur(5px)"},
+           {opacity:1,transform:"translateY(0)",filter:"blur(0)"}],
+        final ? {duration:520,easing:"cubic-bezier(0.23, 1, 0.32, 1)"} : {duration:120,easing:"ease-out"});
+    };
+    const openDoors = () => {
+      el.classList.add("done");
+      html.classList.remove("intro-lock");                     // hero staggers start now
+      el.querySelector(".ip-top").addEventListener("transitionend", () => el.classList.add("gone"), {once:true});
+      setTimeout(() => el.classList.add("gone"), 1500);        // failsafe
+    };
+    let timer = 0;
+    const drive = () => {
+      clearTimeout(timer);
+      const t = performance.now() - t0;
+      if (countEl) countEl.textContent = String(Math.min(100, Math.round(t / countSpan * 100))).padStart(2, "0");
+      let idx = 0;
+      for (let k = 0; k < bounds.length; k++) if (t >= bounds[k]) idx = k + 1;
+      if (idx !== i){
+        i = idx;
+        const isFinal = i === words.length - 1;
+        swap(words[i], isFinal);
+        if (isFinal) wordEl.classList.add("intro-final");
+      }
+      if (t >= total){ document.removeEventListener("visibilitychange", drive); openDoors(); }
+      else timer = setTimeout(drive, 30);
+    };
+    drive();
+    document.addEventListener("visibilitychange", drive);
+    setTimeout(finish, 9000);                                  // absolute failsafe
+  })();
+
   // ——— Reveal on scroll ———
   const io = new IntersectionObserver((es) => {
     es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
