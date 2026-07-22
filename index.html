@@ -356,6 +356,53 @@
   .mini-arc{flex:1;height:38px}
   .caption{text-align:center;color:var(--muted);font-family:var(--mono);font-size:11px;
     letter-spacing:.1em;text-transform:uppercase;margin-top:16px}
+  /* ——— "Every milestone" phone: LIVE HTML rendition of the real AF9911 detail screen.
+     A 1080px screenshot downscaled to a ~280px frame dissolves its tinted chips ("Flight
+     Complete", "On Time") into solid blocks — real text at display size stays razor sharp,
+     same reason the departures board is HTML. Data mirrors the owner's real screenshot. ——— */
+  .dm{padding:11px;display:flex;flex-direction:column;gap:6px;height:100%;overflow:hidden}
+  .dm-banner{background:rgba(74,222,128,.12);border-radius:11px;padding:7px 12px}
+  .dm-banner b{display:block;color:var(--green);font-family:var(--display);font-weight:700;font-size:12.5px}
+  .dm-banner span{color:rgba(74,222,128,.72);font-size:9.5px}
+  .dm-head{display:flex;align-items:flex-start;justify-content:space-between;padding:0 2px}
+  .dm-fn{font-family:var(--mono);font-weight:700;font-size:17px;color:var(--gold);line-height:1.15}
+  .dm-air{color:var(--muted);font-size:10px}
+  .dm-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(96,165,250,.16);
+    color:#8fbcfa;font-family:var(--mono);font-size:9px;letter-spacing:.06em;border-radius:999px;
+    padding:4px 9px;margin-top:2px}
+  .dm-chip svg{width:9px;height:9px;stroke:#8fbcfa;fill:none;stroke-width:3}
+  .dm-route{background:var(--surface-2);border:1px solid var(--edge);border-radius:13px;padding:11px 12px}
+  .dm-route .r{display:flex;align-items:flex-end;gap:8px}
+  .dm-ap{display:flex;flex-direction:column;align-items:center;min-width:44px}
+  .dm-ap b{font-family:var(--mono);font-size:19px;color:var(--cream);line-height:1.1}
+  .dm-ap i{font-style:normal;font-size:8.5px;color:var(--muted)}
+  .dm-ap s{text-decoration:none;font-family:var(--mono);font-size:9.5px;color:var(--ink)}
+  .dm-arc{flex:1;height:34px}
+  .dm-meta{text-align:center;color:var(--muted);font-size:9.5px}
+  .dm-journal{display:flex;align-items:center;gap:9px;background:rgba(242,202,80,.10);
+    border:1px solid rgba(242,202,80,.26);border-radius:12px;padding:9px 12px}
+  .dm-journal svg{width:15px;height:15px;stroke:var(--gold);fill:none;stroke-width:1.8;flex:0 0 auto}
+  .dm-journal div{flex:1;min-width:0}
+  .dm-journal b{display:block;color:var(--gold);font-family:var(--display);font-weight:600;font-size:11.5px}
+  .dm-journal span{color:rgba(242,202,80,.68);font-size:9.5px}
+  .dm-journal .chv{color:rgba(242,202,80,.6);font-size:13px;flex:0 0 auto}
+  .dm-ontime{background:rgba(74,222,128,.12);border-radius:10px;padding:7px 12px;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:var(--green)}
+  .dm-miles{background:var(--surface-2);border:1px solid var(--edge);border-radius:13px;
+    padding:11px 12px 9px;flex:1;min-height:0;overflow:hidden}
+  .dm-miles-h{font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--gold);
+    text-transform:uppercase;margin-bottom:8px}
+  .dm-mrow{display:flex;align-items:center;gap:9px}
+  .dm-dotcol{display:flex;flex-direction:column;align-items:center;width:13px;flex:0 0 auto}
+  .dm-dot{width:13px;height:13px;border-radius:50%;background:#22c55e;display:flex;
+    align-items:center;justify-content:center}
+  .dm-dot svg{width:7px;height:7px;stroke:#fff;fill:none;stroke-width:3.4}
+  .dm-dot.gold{background:transparent;border:2px solid var(--gold)}
+  .dm-dot.gold i{width:5px;height:5px;border-radius:50%;background:var(--gold)}
+  .dm-link{width:2px;height:7px;background:rgba(34,197,94,.4)}
+  .dm-ml{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;color:var(--cream)}
+  .dm-ml small{display:block;font-family:var(--body);font-size:8px;letter-spacing:0;color:var(--muted)}
+  .dm-ml.gold{color:var(--gold)}
   .hero-stat{font-family:var(--mono);font-size:34px;color:var(--gold);text-align:center;margin:8px 0 2px}
   .hero-stat-l{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.16em;
     text-transform:uppercase;color:var(--muted)}
@@ -699,7 +746,38 @@
         <p class="caption">Live &amp; past flights</p>
       </div>
       <div>
-        <div class="phone"><div class="phone-screen"><img class="shot" src="assets/shot-detail.jpg" alt="Overwing flight detail with the milestone timeline"/></div></div>
+        <div class="phone"><div class="phone-screen"><div class="dm" role="img" aria-label="Overwing flight detail: AF9911 arrived, JFK to LHR, with the milestone timeline">
+          <div class="dm-banner"><b>You&#8217;ve Arrived</b><span>Hope It Was A Good Flight</span></div>
+          <div class="dm-head">
+            <div><div class="dm-fn">AF9911</div><div class="dm-air">Air France</div></div>
+            <span class="dm-chip"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>ARRIVED</span>
+          </div>
+          <div class="dm-route"><div class="r">
+            <div class="dm-ap"><b>JFK</b><i>New York</i><s>7:10 AM</s></div>
+            <svg class="dm-arc" viewBox="0 0 120 34" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M4 28 Q60 4 116 28" fill="none" stroke="#e0722e" stroke-width="2"/>
+              <circle cx="4" cy="28" r="2.6" fill="#e0722e"/><circle cx="116" cy="28" r="2.6" fill="#e0722e"/>
+            </svg>
+            <div class="dm-ap"><b>LHR</b><i>London</i><s>2:35 PM</s></div>
+          </div></div>
+          <div class="dm-meta">Jul 11, 2026 &middot; 7h 25m</div>
+          <div class="dm-journal">
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5v13zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-2.5"/></svg>
+            <div><b>Flight Complete</b><span>Add to your journal</span></div>
+            <span class="chv">&#8250;</span>
+          </div>
+          <div class="dm-ontime">On Time</div>
+          <div class="dm-miles">
+            <div class="dm-miles-h">Flight Milestones</div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-dot"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></span><span class="dm-ml">BOARDING<small>T4 &middot; 7:10 AM</small></span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-link"></span></span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-dot"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></span><span class="dm-ml">TAKEOFF</span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-link"></span></span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-dot"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></span></span><span class="dm-ml">CRUISING</span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-link"></span></span></div>
+            <div class="dm-mrow"><span class="dm-dotcol"><span class="dm-dot gold"><i></i></span></span><span class="dm-ml gold">ARRIVED<small>Terminal 3</small></span></div>
+          </div>
+        </div></div></div>
         <p class="caption">Every milestone</p>
       </div>
       <div>
