@@ -150,8 +150,12 @@
     letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
   .board-head .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);
     animation:pulse 2s ease-in-out infinite}
-  .board-rows{padding:10px 12px;display:grid;gap:2px}
-  .frow{display:grid;grid-template-columns:max-content max-content max-content;column-gap:18px;align-items:center;
+  .board-rows{padding:4px 12px 10px;display:grid;gap:2px}
+  /* column headers (TIME · DESTINATION · FLIGHT · GATE · REMARKS) like a real airport board;
+     label widths are matched to the tile groups by JS so the columns align exactly */
+  .board-cols{display:flex;column-gap:18px;padding:12px 19px 2px;font-family:var(--mono);font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .frow{display:grid;grid-template-columns:repeat(5,max-content);column-gap:18px;align-items:center;
     padding:9px 7px;border-bottom:1px solid rgba(255,255,255,.045)}
   .frow:last-child{border-bottom:0}
   .flap-group{display:flex;gap:3px;perspective:240px}
@@ -163,8 +167,13 @@
     text-shadow:0 1px 0 rgba(0,0,0,.6);transform-origin:center center;backface-visibility:hidden;will-change:transform}
   .flap::after{content:"";position:absolute;z-index:1;left:2px;right:2px;top:50%;height:1px;
     background:rgba(0,0,0,.76);box-shadow:0 1px 0 rgba(255,255,255,.035);pointer-events:none}
+  @media(max-width:700px){
+    /* not enough width for five tile columns — drop FLIGHT and GATE, keep the classic trio */
+    .fflight,.fgate,.c-flight,.c-gate{display:none}
+  }
   @media(max-width:560px){
     .frow{column-gap:8px;padding-inline:4px}
+    .board-cols{column-gap:8px;padding-inline:16px}
     .flap-group{gap:2px}
     .board-hint{display:none}
   }
@@ -310,12 +319,15 @@
   /* ——— Phone showcase ——— */
   .phones{padding:clamp(48px,8vw,90px) 0;overflow:hidden}
   .phone-row{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
-  .phone{width:240px;flex:0 0 auto;border-radius:34px;padding:9px;background:linear-gradient(160deg,#26241d,#0c0b08);
+  /* 300px wide (was 240): at ~20% scale the screenshots' tinted chips ("Flight Complete", "On Time")
+     lost their text and read as solid blocks — larger frames + 720px source crops keep the real data
+     legible (2026-07-22 fix). */
+  .phone{width:300px;flex:0 0 auto;border-radius:40px;padding:10px;background:linear-gradient(160deg,#26241d,#0c0b08);
     border:1px solid rgba(242,202,80,.15);box-shadow:0 30px 70px rgba(0,0,0,.6);
     animation:floaty 7s ease-in-out infinite}
   .phone-row>div:nth-child(2) .phone{animation-delay:-2.3s}
   .phone-row>div:nth-child(3) .phone{animation-delay:-4.6s}
-  .phone-screen{border-radius:26px;overflow:hidden;background:var(--obsidian);height:480px;position:relative;
+  .phone-screen{border-radius:30px;overflow:hidden;background:var(--obsidian);height:610px;position:relative;
     display:flex;flex-direction:column}
   /* real app screenshot filling the phone frame (top-aligned so the header shows) */
   .phone-screen img.shot{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
@@ -478,6 +490,9 @@
           <span class="board-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11V6a2 2 0 0 1 4 0v5"/><path d="M13 11V4a2 2 0 0 1 4 0v7"/><path d="M17 11V7a2 2 0 0 1 4 0v9a5 5 0 0 1-5 5h-3a5 5 0 0 1-4-2l-4-5a2 2 0 0 1 3-2l2 2"/></svg>Tap to flip</span>
           <span class="live"><span class="dot"></span>Live</span>
         </span>
+      </div>
+      <div class="board-cols" id="boardCols" aria-hidden="true">
+        <span class="c-time">Time</span><span class="c-dest">Destination</span><span class="c-flight">Flight</span><span class="c-gate">Gate</span><span class="c-status">Remarks</span>
       </div>
       <div class="board-rows" id="boardRows" aria-live="polite"></div>
     </div>
@@ -855,20 +870,21 @@
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   // ——— Split-flap departures board ———
+  // [time, destination, flight, gate, status, colorKey]
   const DEPS = [
-    ["06:25","DUBLIN","BOARDING","gold"],["10:40","TOKYO","ON TIME","green"],
-    ["14:15","PARIS","DELAYED","red"],["08:05","DUBAI","ON TIME","green"],
-    ["21:30","SYDNEY","BOARDING","gold"],["16:45","LISBON","ON TIME","green"],
-    ["07:20","ATHENS","DELAYED","red"],["12:10","MUMBAI","ON TIME","green"],
-    ["19:55","BOSTON","BOARDING","gold"],["09:35","MADRID","ON TIME","green"],
-    ["11:50","BERLIN","ON TIME","green"],["18:20","CAIRO","DELAYED","red"],
-    ["13:05","OSLO","BOARDING","gold"],["20:10","VIENNA","BOARDING","gold"],
-    ["22:15","SEOUL","BOARDING","gold"],["17:25","MILAN","ON TIME","green"],
-    ["14:45","ZURICH","ON TIME","green"],["23:05","MANILA","BOARDING","gold"],
-    ["10:15","HAVANA","BOARDING","gold"],["13:40","NAPLES","ON TIME","green"]
+    ["06:25","DUBLIN","EI 342","12","BOARDING","gold"],["10:40","TOKYO","NH 212","41","ON TIME","green"],
+    ["14:15","PARIS","AF1681","22","DELAYED","red"],["08:05","DUBAI","EK 162","A7","ON TIME","green"],
+    ["21:30","SYDNEY","QF 2","15","BOARDING","gold"],["16:45","LISBON","TP1329","30","ON TIME","green"],
+    ["07:20","ATHENS","A3 601","D3","DELAYED","red"],["12:10","MUMBAI","AI 130","52","ON TIME","green"],
+    ["19:55","BOSTON","EI 137","C9","BOARDING","gold"],["09:35","MADRID","IB3167","28","ON TIME","green"],
+    ["11:50","BERLIN","LH 187","B2","ON TIME","green"],["18:20","CAIRO","MS 778","19","DELAYED","red"],
+    ["13:05","OSLO","SK4602","33","BOARDING","gold"],["20:10","VIENNA","OS 462","D8","BOARDING","gold"],
+    ["22:15","SEOUL","KE 908","24","BOARDING","gold"],["17:25","MILAN","AZ 217","16","ON TIME","green"],
+    ["14:45","ZURICH","LX 319","A2","ON TIME","green"],["23:05","MANILA","PR 731","44","BOARDING","gold"],
+    ["10:15","HAVANA","AV 254","B6","BOARDING","gold"],["13:40","NAPLES","BA2610","21","ON TIME","green"]
   ];
   const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 ";
-  const ROWS = 5, TIME_CELLS = 5, DEST_CELLS = 6, STATUS_CELLS = 8, BLANK = "\u00a0";
+  const ROWS = 5, TIME_CELLS = 5, DEST_CELLS = 6, FLIGHT_CELLS = 6, GATE_CELLS = 2, STATUS_CELLS = 8, BLANK = "\u00a0";
   const STATUS_COLORS = { green: "#4ade80", red: "#ef6a5c", gold: "#f2ca50" };
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const container = document.getElementById("boardRows");
@@ -898,11 +914,28 @@
     row.className = "frow";
     const time = makeGroup("ftime", TIME_CELLS, false);
     const destination = makeGroup("fdest", DEST_CELLS, false);
+    const flightNo = makeGroup("fflight", FLIGHT_CELLS, false);
+    const gate = makeGroup("fgate", GATE_CELLS, false);
     const status = makeGroup("fstatus", STATUS_CELLS, true);
-    row.append(time.group, destination.group, status.group);
+    row.append(time.group, destination.group, flightNo.group, gate.group, status.group);
     container.appendChild(row);
-    rowEls.push({ el: row, tcells: time.cells, dcells: destination.cells, scells: status.cells, destination: "" });
+    rowEls.push({ el: row, tcells: time.cells, dcells: destination.cells, fcells: flightNo.cells, gcells: gate.cells, scells: status.cells, destination: "" });
   }
+
+  // Match the header labels (TIME / DESTINATION / FLIGHT / GATE / REMARKS) to the rendered tile-group
+  // widths so the columns align exactly at any viewport (tile size is responsive).
+  function sizeCols(){
+    const firstRow = container.querySelector(".frow");
+    const cols = document.getElementById("boardCols");
+    if (!firstRow || !cols) return;
+    for (let i = 0; i < cols.children.length && i < firstRow.children.length; i++){
+      const w = firstRow.children[i].offsetWidth;
+      cols.children[i].style.width = w > 0 ? w + "px" : "";
+      cols.children[i].style.display = w > 0 ? "" : "none";
+    }
+  }
+  sizeCols();
+  window.addEventListener("resize", sizeCols);
 
   // Port of FlapCell: ten decelerating random steps, each folding out then dropping in.
   // A version per cell makes a newer row update cancel every pending half-flip from the previous one.
@@ -946,13 +979,15 @@
 
   function flapRow(index, departure, extraDelay){
     const row = rowEls[index];
-    const [time, destination, status, colorKey] = departure;
+    const [time, destination, flight, gate, status, colorKey] = departure;
     const base = extraDelay || 0;
     row.destination = destination;
-    row.el.setAttribute("aria-label", time + " " + destination + " " + status);
+    row.el.setAttribute("aria-label", time + " " + destination + " flight " + flight + " gate " + gate + " " + status);
     row.scells.forEach(cell => cell.style.setProperty("--flap-color", STATUS_COLORS[colorKey]));
     flapGroup(row.tcells, time, base);
     flapGroup(row.dcells, padRight(destination, DEST_CELLS), base);
+    flapGroup(row.fcells, padRight(flight, FLIGHT_CELLS), base);
+    flapGroup(row.gcells, padRight(gate, GATE_CELLS), base);
     flapGroup(row.scells, padLeft(status, STATUS_CELLS), base);
   }
 
