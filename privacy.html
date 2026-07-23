@@ -87,7 +87,7 @@
     letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
   .tldr p{margin:0;color:var(--ink)}
 
-  .legal section{margin-top:40px}
+  .legal section{margin-top:40px;scroll-margin-top:84px}
   .legal h2{font-size:19px;font-weight:700;letter-spacing:-.01em;margin:0 0 12px;color:var(--cream);
     display:flex;align-items:baseline;gap:10px}
   .legal h2::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--gold);
@@ -101,6 +101,16 @@
   .legal li::before{content:"";position:absolute;left:2px;top:18px;width:6px;height:6px;
     border-radius:50%;background:var(--copper)}
   .legal li strong{color:var(--cream);font-weight:600}
+  /* prominent numbered steps (delete-account flow) — distinct from the plain bulleted lists above */
+  .legal ol.steps{list-style:none;margin:18px 0;padding:0;counter-reset:step;
+    display:flex;flex-direction:column;gap:10px}
+  .legal ol.steps li{position:relative;border:none;padding:12px 16px 12px 50px;
+    background:var(--surface);border:1px solid var(--edge);border-radius:12px;color:var(--cream)}
+  .legal ol.steps li::before{content:counter(step);counter-increment:step;
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    width:22px;height:22px;border-radius:50%;background:var(--gold);color:#1a1206;
+    font-family:var(--mono);font-weight:700;font-size:12px;
+    display:flex;align-items:center;justify-content:center}
   .rule{height:1px;background:var(--edge);border:none;margin:44px 0 0}
 
   .contact-card{display:flex;align-items:center;gap:12px;padding:16px 18px;border:1px solid var(--edge);
@@ -212,9 +222,28 @@
     <h2>Retention &amp; deletion</h2>
     <ul>
       <li><strong>Uninstalling</strong> the app removes all locally stored data.</li>
-      <li><strong>Delete account</strong> — in Settings → Account → <em>Delete account</em>, which permanently deletes your cloud-synced data (structured data and backed-up photos) and your account.</li>
+      <li><strong>Delete account</strong> — see the steps below. This permanently deletes your
+      cloud-synced data and your account.</li>
       <li>Data you never backed up only ever existed on your device.</li>
     </ul>
+  </section>
+
+  <section id="delete-account">
+    <h2>How to delete your Overwing account and data</h2>
+    <p>To request deletion of your Overwing account and all data associated with it:</p>
+    <ol class="steps">
+      <li>Open the <strong>Overwing</strong> app on your device.</li>
+      <li>Go to <strong>Settings</strong> → <strong>Account</strong>.</li>
+      <li>Tap <strong>Delete account</strong>, then confirm.</li>
+    </ol>
+    <p>Deletion happens immediately, there is no waiting period or additional retention.
+    <strong>Deleted permanently:</strong> your cloud-synced flights, journal entries and photos,
+    travel companions/contacts, profile name and photo, and the account itself (Google Firebase
+    Authentication + Firestore + Storage). <strong>Nothing is kept</strong> after deletion completes;
+    we hold no backup copy. Data that was never backed up to the cloud only ever existed on your
+    device, and is removed the moment you uninstall the app. If you'd rather request this by email
+    instead of using the in-app button, write to <a href="mailto:illusionistboi@proton.me">illusionistboi@proton.me</a>
+    from the email address linked to your account and we'll process the deletion manually.</p>
   </section>
 
   <section>
